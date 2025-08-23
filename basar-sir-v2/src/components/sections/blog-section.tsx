@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Calendar, Clock, ArrowRight } from "lucide-react"
 import { demoBlogPosts } from "@/src/lib/demo-data"
 import Image from "next/image"
+import Link from "next/link"
 
 export function BlogSection() {
   const publishedPosts = demoBlogPosts.filter((post) => post.status === "published")
@@ -52,19 +53,23 @@ export function BlogSection() {
                   ))}
                 </div>
 
-                <Button variant="ghost" className="p-0 h-auto font-medium text-primary">
-                  Read More
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
+                <Link href={`/blog/${post.id}`}>
+                  <Button variant="ghost" className="p-0 h-auto font-medium text-primary">
+                    Read More
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           ))}
         </div>
 
         <div className="text-center mt-12">
-          <Button variant="outline" size="lg">
-            View All Posts
-          </Button>
+          <Link href="/blog">
+            <Button variant="outline" size="lg">
+              View All Posts
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
