@@ -5,7 +5,7 @@ import { Mail, MapPin, Phone, ExternalLink } from "lucide-react"
 export function ContactSection() {
   return (
     <section id="contact" className="py-20 px-4">
-      <div className="container mx-auto max-w-6xl">
+      <div className="container mx-auto ">
         <div className="text-center mb-12">
           <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4 font-sans">Get In Touch</h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto font-serif">

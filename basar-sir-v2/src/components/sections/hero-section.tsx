@@ -10,17 +10,15 @@ export function HeroSection() {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   return (
-    <section className="py-20 px-4">
+    <section className="py-40 px-4">
       <div className="container mx-auto max-w-6xl">
         <div className="flex flex-col lg:flex-row items-center gap-12">
           <div className="flex-1 space-y-6">
             <div className="space-y-4">
-              <h1 className="text-4xl lg:text-6xl font-bold text-foreground font-sans">Samrat Kumar Dey</h1>
+              <h1 className="text-4xl lg:text-6xl font-bold text-foreground font-sans">Md. Abul Basar</h1>
               <p className="text-xl text-primary font-medium">Teaching Professional | Researcher | Explorer</p>
               <p className="text-lg text-muted-foreground font-serif leading-relaxed max-w-2xl">
-                PhD in Informatics with specialization in Medical Informatics at the University of Missouri-Columbia.
-                Graduate Research Assistant at MU Institute for Data Science and Informatics, passionate about machine
-                learning in healthcare and artificial intelligence applications.
+             Aspiring academic in computer science and data science, seeking a fully funded PhD to advance research in health informatics and machine learning while contributing to academic excellence.
               </p>
             </div>
 
@@ -113,7 +111,7 @@ export function HeroSection() {
       /></span>
               </div>
               <div className="text-center">
-                <h3 className="text-2xl font-bold text-foreground">Samrat Kumar Dey</h3>
+                <h3 className="text-2xl font-bold text-foreground">Md. Abul Basar</h3>
                 <p className="text-lg text-primary font-medium">Teaching Professional | Researcher | Explorer</p>
               </div>
             </div>

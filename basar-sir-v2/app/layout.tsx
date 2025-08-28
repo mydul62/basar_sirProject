@@ -18,8 +18,8 @@ const manrope = Manrope({
 })
 
 export const metadata: Metadata = {
-  title: "Samrat Kumar Dey - Academic & Researcher",
-  description: "Personal website of Samrat Kumar Dey - PhD in Informatics, Researcher, and Teaching Professional",
+  title: "Md. Abul Basar - Academic & Researcher",
+  description: "Aspiring academic in computer science and data science, seeking a fully funded PhD to advance research in health informatics and machine learning while contributing to academic excellence.",
   generator: "v0.app",
 }
 
