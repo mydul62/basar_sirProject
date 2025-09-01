@@ -12,6 +12,7 @@ import {
 import { Home, BarChart3, FileText, Settings, User, ArrowLeft, BookOpen, Trophy, Users, DollarSign } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { LogoutButton } from "./logout-button"
 
 const sidebarItems = [
   {
@@ -60,7 +61,7 @@ export function DashboardSidebar() {
   const pathname = usePathname()
 
   return (
-    <Sidebar className="border-r border-sidebar-border bg-sidebar">
+  <Sidebar className="border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="border-b border-sidebar-border p-4">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-sidebar-primary rounded-lg flex items-center justify-center">
@@ -68,7 +69,7 @@ export function DashboardSidebar() {
           </div>
           <div className="flex-1">
             <h2 className="font-semibold text-sidebar-foreground">Dashboard</h2>
-            <p className="text-xs text-sidebar-foreground/60">Md. Abul Basar</p>
+            <p className="text-xs text-sidebar-foreground/60">Samrat Kumar Dey</p>
           </div>
         </div>
       </SidebarHeader>
@@ -105,6 +106,10 @@ export function DashboardSidebar() {
               Back to Website
             </Link>
           </SidebarMenuButton>
+
+          <div className="mt-2">
+            <LogoutButton />
+          </div>
         </div>
       </SidebarContent>
     </Sidebar>

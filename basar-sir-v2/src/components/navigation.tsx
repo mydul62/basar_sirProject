@@ -23,21 +23,20 @@ import {
 
 const mainNavItems = [
   { href: "/", label: "Home", icon: Home },
-  { href: "/about", label: "About", icon: PenTool },
-  { href: "/blog", label: "Blog", icon: PenTool },
-  { href: "/projects", label: "Projects", icon: FolderOpen },
+  { href: "/#about", label: "About", icon: PenTool },
+  { href: "/#blog", label: "Blog", icon: PenTool },
+  { href: "/#projects", label: "Projects", icon: FolderOpen },
 ]
 
 const miniNavItems = [
-  { href: "/research-interest", label: "Research Interest", icon: PenTool },
-  { href: "/publications", label: "Publications", icon: BookOpen },
-  { href: "/awards", label: "Awards", icon: Trophy },
-  { href: "/networks", label: "Networks", icon: Users },
-  { href: "/grants", label: "Grants", icon: DollarSign },
-  { href: "/extr acurricular", label: "Extracurricular", icon: Award },
-  { href: "/certification", label: "Certification", icon: BadgeCheck },
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/contact", label: "Contact", icon: Mail },
+  { href: "/#research-interest", label: "Research Interest", icon: PenTool },
+  { href: "/#publications", label: "Publications", icon: BookOpen },
+  { href: "/#awards", label: "Awards", icon: Trophy },
+  { href: "/#networks", label: "Networks", icon: Users },
+  { href: "/#grants", label: "Grants", icon: DollarSign },
+  { href: "/#extr acurricular", label: "Extracurricular", icon: Award },
+  { href: "/#certification", label: "Certification", icon: BadgeCheck },
+  { href: "/#contact", label: "Contact", icon: Mail },
 ]
 
 export function Navigation() {
