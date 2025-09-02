@@ -9,12 +9,13 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { Home, BarChart3, FileText, Settings, User, ArrowLeft, BookOpen, Trophy, Users, DollarSign } from "lucide-react"
+import { Home, BarChart3, FileText, Settings, User, ArrowLeft, BookOpen, Trophy, Users, DollarSign, Award } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { LogoutButton } from "./logout-button"
 
-const sidebarItems = [
+const sidebarItems =
+[
   {
     title: "Overview",
     href: "/dashboard",
@@ -39,6 +40,11 @@ const sidebarItems = [
     title: "Awards",
     href: "/dashboard/awards",
     icon: Trophy,
+  },
+  {
+    title: "Certificates",
+    href: "/dashboard/certificates",
+    icon: Award,
   },
   {
     title: "Networks",

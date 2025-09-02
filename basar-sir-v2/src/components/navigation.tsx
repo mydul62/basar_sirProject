@@ -35,7 +35,7 @@ const miniNavItems = [
   { href: "/#networks", label: "Networks", icon: Users },
   { href: "/#grants", label: "Grants", icon: DollarSign },
   { href: "/#extr acurricular", label: "Extracurricular", icon: Award },
-  { href: "/#certification", label: "Certification", icon: BadgeCheck },
+  { href: "/#certifications", label: "Certification", icon: BadgeCheck },
   { href: "/#contact", label: "Contact", icon: Mail },
 ]
 

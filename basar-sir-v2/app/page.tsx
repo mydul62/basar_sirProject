@@ -9,6 +9,7 @@ import { GrantsSection } from "@/src/components/sections/grants-section"
 import { ContactSection } from "@/src/components/sections/contact-section"
 import { ScrollToTop } from "@/src/components/ui/scroll-to-top"
 import { BlogSection } from "@/src/components/sections/blog-section"
+import { CertificationsSection } from "@/src/components/sections/certifications-section"
 
 export default function HomePage() {
   return (
@@ -20,6 +21,7 @@ export default function HomePage() {
         <ProjectsSection />
         <PublicationsSection />
         <AwardsSection />
+         <CertificationsSection />
         <NetworksSection />
         <GrantsSection />
         <BlogSection />

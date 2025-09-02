@@ -1,5 +1,5 @@
 export interface Project {
-  _id: string
+  id: string
   title: string
   description: string
   technologies: string[]
@@ -12,7 +12,7 @@ export interface Project {
 }
 
 export interface BlogPost {
-  _id: string
+  id: string
   title: string
   excerpt: string
   content: string
@@ -24,7 +24,7 @@ export interface BlogPost {
 }
 
 export interface Publication {
-  _id: string
+  id: string
   title: string
   authors: string[]
   journal: string
@@ -38,7 +38,7 @@ export interface Publication {
 }
 
 export interface Award {
-  _id: string
+  id: string
   title: string
   organization: string
   year: number
@@ -47,7 +47,7 @@ export interface Award {
 }
 
 export interface Network {
-  _id: string
+  id: string
   role: string
   organization: string
   description?: string
@@ -57,7 +57,7 @@ export interface Network {
 }
 
 export interface Grant {
-  _id: string
+  id: string
   title: string
   role: string
   fundingAgency: string
@@ -67,6 +67,70 @@ export interface Grant {
   amount?: string
   status: "active" | "completed" | "pending"
 }
+
+export interface Certificate {
+  id: string
+  title: string
+  issuer: string
+  issueDate: string
+  expiryDate: string
+  credentialId: string
+  image: string
+  description: string
+  skills: string[]
+  verificationUrl?: string
+}
+
+export const demoCertificates: Certificate[] = [
+  {
+    id: "1",
+    title: "AWS Certified Solutions Architect",
+    issuer: "Amazon Web Services",
+    issueDate: "2024",
+    expiryDate: "2027",
+    credentialId: "AWS-CSA-2024-001",
+    image: "/aws-certification-badge.png",
+    description: "Professional-level certification demonstrating expertise in designing distributed systems on AWS.",
+    skills: ["Cloud Architecture", "AWS Services", "Security", "Scalability"],
+    verificationUrl: "https://aws.amazon.com/verification/AWS-CSA-2024-001",
+  },
+  {
+    id: "2",
+    title: "Google Cloud Professional Data Engineer",
+    issuer: "Google Cloud",
+    issueDate: "2023",
+    expiryDate: "2025",
+    credentialId: "GCP-PDE-2023-002",
+    image: "/google-cloud-certification-badge.png",
+    description: "Expertise in designing and building data processing systems and machine learning models on GCP.",
+    skills: ["Data Engineering", "BigQuery", "Machine Learning", "Data Pipeline"],
+    verificationUrl: "https://cloud.google.com/certification/verify/GCP-PDE-2023-002",
+  },
+  {
+    id: "3",
+    title: "Microsoft Azure AI Engineer Associate",
+    issuer: "Microsoft",
+    issueDate: "2023",
+    expiryDate: "2025",
+    credentialId: "AZ-AI-102-2023-003",
+    image: "/microsoft-azure-ai-certification-badge.png",
+    description: "Proficiency in implementing AI solutions using Azure Cognitive Services and Machine Learning.",
+    skills: ["Azure AI", "Cognitive Services", "ML Models", "Computer Vision"],
+    verificationUrl: "https://docs.microsoft.com/en-us/learn/certifications/verify/AZ-AI-102-2023-003",
+  },
+  {
+    id: "4",
+    title: "Certified Kubernetes Administrator",
+    issuer: "Cloud Native Computing Foundation",
+    issueDate: "2024",
+    expiryDate: "2027",
+    credentialId: "CKA-2024-004",
+    image: "/kubernetes-certification-badge.png",
+    description: "Demonstrates skills in Kubernetes cluster administration and container orchestration.",
+    skills: ["Kubernetes", "Container Orchestration", "DevOps", "Cluster Management"],
+    verificationUrl: "https://training.linuxfoundation.org/certification/verify/CKA-2024-004",
+  },
+]
 
 export const demoProjects: Project[] = [
   {
@@ -597,6 +661,11 @@ export const grants = demoGrants.map((grant) => ({
   collaborators: getGrantCollaborators(grant.title),
   outcomes: getGrantOutcomes(grant.title),
   amount: getGrantAmount(grant.title),
+}))
+
+export const certificates = demoCertificates.map((cert) => ({
+  ...cert,
+  skills: cert.skills.join(", "),
 }))
 
 // Helper functions to generate additional data for individual pages
