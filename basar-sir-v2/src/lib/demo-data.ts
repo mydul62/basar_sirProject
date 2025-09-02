@@ -1,5 +1,5 @@
 export interface Project {
-  id: string
+  _id: string
   title: string
   description: string
   technologies: string[]
@@ -12,7 +12,7 @@ export interface Project {
 }
 
 export interface BlogPost {
-  id: string
+  _id: string
   title: string
   excerpt: string
   content: string
@@ -24,7 +24,7 @@ export interface BlogPost {
 }
 
 export interface Publication {
-  id: string
+  _id: string
   title: string
   authors: string[]
   journal: string
@@ -38,7 +38,7 @@ export interface Publication {
 }
 
 export interface Award {
-  id: string
+  _id: string
   title: string
   organization: string
   year: number
@@ -47,7 +47,7 @@ export interface Award {
 }
 
 export interface Network {
-  id: string
+  _id: string
   role: string
   organization: string
   description?: string
@@ -57,7 +57,7 @@ export interface Network {
 }
 
 export interface Grant {
-  id: string
+  _id: string
   title: string
   role: string
   fundingAgency: string

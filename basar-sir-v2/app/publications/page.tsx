@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ExternalLink, Calendar, Users } from "lucide-react"
 
-export default function PublicationsPage() {
+export const PublicationsPage=async()=> {
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />

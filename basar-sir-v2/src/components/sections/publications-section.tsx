@@ -4,9 +4,31 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ExternalLink, FileText } from "lucide-react"
-import { demoPublications } from "@/src/lib/demo-data"
+import { demoPublications, Publication } from "@/src/lib/demo-data"
+import { useEffect, useState } from "react"
+import { GetAllPublicatons } from "@/src/services/Publications"
 
 export function PublicationsSection() {
+
+  const [publications, setPublications] =  useState<Publication[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPublications = async () => {
+      try {
+        const data = await GetAllPublicatons();
+        setPublications(data?.data);
+      } catch (error) {
+        console.error("Failed to fetch publications:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPublications();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
   return (
     <section id="publications" className="py-20 bg-muted/30">
       <div className="container mx-auto px-4 max-w-6xl">
@@ -18,8 +40,8 @@ export function PublicationsSection() {
         </div>
 
         <div className="space-y-6">
-          {demoPublications.map((publication, index) => (
-            <Card key={publication.id} className="hover:shadow-lg transition-shadow duration-300">
+          {publications.map((publication, index) => (
+            <Card key={publication._id} className="hover:shadow-lg transition-shadow duration-300">
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
@@ -38,10 +60,10 @@ export function PublicationsSection() {
                       {publication.title}
                     </CardTitle>
                   </div>
-                  {publication.url && (
+                 
                     <Button variant="ghost" size="sm" asChild>
                       <a
-                        href={publication.url}
+                        href={publication?.url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1"
@@ -50,23 +72,14 @@ export function PublicationsSection() {
                         <span className="sr-only">View publication</span>
                       </a>
                     </Button>
-                  )}
+           
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
                 <div className="space-y-3">
                   <div className="text-sm text-muted-foreground font-serif">
                     <span className="font-medium">Authors:</span>{" "}
-                    {publication.authors.map((author, idx) => (
-                      <span key={idx}>
-                        {author === "Dey, S. K." || author === "Dey, S.K." ? (
-                          <span className="font-semibold text-primary">{author}</span>
-                        ) : (
-                          author
-                        )}
-                        {idx < publication.authors.length - 1 && ", "}
-                      </span>
-                    ))}
+                  {publication.authors}
                   </div>
 
                   <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground font-serif">

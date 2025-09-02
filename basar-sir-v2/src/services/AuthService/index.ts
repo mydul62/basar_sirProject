@@ -24,7 +24,7 @@ export const registerUser = async (data:any) => {
   export async function loginUser(data:FieldValues) {
   console.log(data)
 try {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_API}/api/v1/auth/login`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_API}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
