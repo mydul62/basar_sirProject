@@ -1,6 +1,10 @@
+"use client"
+
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Trophy, Award, Star, Medal } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Trophy, Award, Star, Medal, ChevronDown, ChevronUp } from "lucide-react"
 import { demoAwards } from "@/src/lib/demo-data"
 
 const getAwardIcon = (type: string) => {
@@ -19,9 +23,13 @@ const getAwardIcon = (type: string) => {
 }
 
 export function AwardsSection() {
+  const [showAll, setShowAll] = useState(false)
+  const displayedAwards = showAll ? demoAwards : demoAwards.slice(0, 6)
+  const hasMoreAwards = demoAwards.length > 6
+
   return (
     <section id="awards" className="py-20 bg-muted/30">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 ">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-foreground mb-4">Awards & Honours</h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -30,8 +38,11 @@ export function AwardsSection() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {demoAwards.map((award) => (
-            <Card key={award.id} className="hover:shadow-lg transition-shadow">
+          {displayedAwards.map((award) => (
+            <Card
+              key={award.id}
+              className="hover:shadow-lg transition-shadow duration-300 border-2 hover:border-primary/20"
+            >
               <CardHeader className="pb-3">
                 <div className="flex items-start gap-3">
                   {getAwardIcon(award.type)}
@@ -55,6 +66,24 @@ export function AwardsSection() {
             </Card>
           ))}
         </div>
+
+        {hasMoreAwards && (
+          <div className="text-center mt-12">
+            <Button variant="outline" size="lg" onClick={() => setShowAll(!showAll)} className="font-medium px-8 py-3">
+              {showAll ? (
+                <>
+                  <ChevronUp className="w-4 h-4 mr-2" />
+                  Show Less
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="w-4 h-4 mr-2" />
+                  View More Awards ({demoAwards.length - 6} more)
+                </>
+              )}
+            </Button>
+          </div>
+        )}
       </div>
     </section>
   )

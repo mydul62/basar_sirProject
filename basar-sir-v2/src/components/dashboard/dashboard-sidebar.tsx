@@ -14,8 +14,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { LogoutButton } from "./logout-button"
 
-const sidebarItems =
-[
+const sidebarItems = [
   {
     title: "Overview",
     href: "/dashboard",
@@ -52,6 +51,11 @@ const sidebarItems =
     icon: Users,
   },
   {
+    title: "Activities",
+    href: "/dashboard/activities",
+    icon: Users,
+  },
+  {
     title: "Grants",
     href: "/dashboard/grants",
     icon: DollarSign,
@@ -75,7 +79,7 @@ export function DashboardSidebar() {
           </div>
           <div className="flex-1">
             <h2 className="font-semibold text-sidebar-foreground">Dashboard</h2>
-            <p className="text-xs text-sidebar-foreground/60">Samrat Kumar Dey</p>
+            <p className="text-xs text-sidebar-foreground/60">Md. Abul Basar</p>
           </div>
         </div>
       </SidebarHeader>

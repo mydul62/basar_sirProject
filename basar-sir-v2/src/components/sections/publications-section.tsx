@@ -31,7 +31,7 @@ export function PublicationsSection() {
   if (loading) return <p>Loading...</p>;
   return (
     <section id="publications" className="py-20 bg-muted/30">
-      <div className="container mx-auto px-4 max-w-6xl">
+      <div className="container mx-auto px-4 ">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-foreground mb-4 font-sans">Research Publications</h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-serif">

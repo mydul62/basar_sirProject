@@ -10,6 +10,7 @@ import { ContactSection } from "@/src/components/sections/contact-section"
 import { ScrollToTop } from "@/src/components/ui/scroll-to-top"
 import { BlogSection } from "@/src/components/sections/blog-section"
 import { CertificationsSection } from "@/src/components/sections/certifications-section"
+import { ActivitiesSection } from "@/src/components/sections/activities-section"
 
 export default function HomePage() {
   return (
@@ -22,6 +23,7 @@ export default function HomePage() {
         <PublicationsSection />
         <AwardsSection />
          <CertificationsSection />
+         <ActivitiesSection/>
         <NetworksSection />
         <GrantsSection />
         <BlogSection />

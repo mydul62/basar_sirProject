@@ -10,8 +10,8 @@ export function HeroSection() {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   return (
-    <section className="py-40 px-4">
-      <div className="container mx-auto max-w-6xl">
+    <section className="py-44 px-4">
+      <div className="container mx-auto ">
         <div className="flex flex-col lg:flex-row items-center gap-12">
           <div className="flex-1 space-y-6">
             <div className="space-y-4">
