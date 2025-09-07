@@ -6,28 +6,21 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Edit, Trash2, Eye, Calendar, Clock } from "lucide-react"
 import { demoBlogPosts, type BlogPost } from "@/src/lib/demo-data"
-import { BlogModal, DeleteBlogModal } from "@/src/components/dashboard/blog-modals"
+import Link from "next/link"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export default function BlogPage() {
   const [posts, setPosts] = useState<BlogPost[]>(demoBlogPosts)
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [editingPost, setEditingPost] = useState<BlogPost | undefined>()
   const [deletingPost, setDeletingPost] = useState<BlogPost | undefined>()
-
-  const handleAddPost = (postData: Omit<BlogPost, "id">) => {
-    const newPost: BlogPost = {
-      ...postData,
-      id: Date.now().toString(), // Simple ID generation for demo
-    }
-    setPosts((prev) => [...prev, newPost])
-  }
-
-  const handleEditPost = (postData: Omit<BlogPost, "id"> & { id?: string }) => {
-    if (!postData.id) return
-
-    setPosts((prev) => prev.map((post) => (post.id === postData.id ? { ...(postData as BlogPost) } : post)))
-    setEditingPost(undefined)
-  }
 
   const handleDeletePost = () => {
     if (!deletingPost) return
@@ -49,9 +42,11 @@ export default function BlogPage() {
           <h1 className="text-3xl font-bold text-foreground font-sans">Blog Posts</h1>
           <p className="text-muted-foreground font-serif">Create and manage your blog content.</p>
         </div>
-        <Button onClick={() => setIsAddModalOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          New Post
+        <Button asChild>
+          <Link href="/dashboard/blog/add">
+            <Plus className="w-4 h-4 mr-2" />
+            New Post
+          </Link>
         </Button>
       </div>
 
@@ -83,8 +78,10 @@ export default function BlogPage() {
                     {post.status}
                   </Badge>
                   <div className="flex gap-1">
-                    <Button variant="ghost" size="sm" onClick={() => setEditingPost(post)}>
-                      <Edit className="w-4 h-4" />
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link href={`/dashboard/blog/${post.id}/edit`}>
+                        <Edit className="w-4 h-4" />
+                      </Link>
                     </Button>
                     <Button variant="ghost" size="sm">
                       <Eye className="w-4 h-4" />
@@ -117,24 +114,25 @@ export default function BlogPage() {
         ))}
       </div>
 
-      {/* Add Post Modal */}
-      <BlogModal open={isAddModalOpen} onOpenChange={setIsAddModalOpen} onSubmit={handleAddPost} />
-
-      {/* Edit Post Modal */}
-      <BlogModal
-        open={!!editingPost}
-        onOpenChange={(open) => !open && setEditingPost(undefined)}
-        post={editingPost}
-        onSubmit={handleEditPost}
-      />
-
-      {/* Delete Post Modal */}
-      <DeleteBlogModal
-        open={!!deletingPost}
-        onOpenChange={(open) => !open && setDeletingPost(undefined)}
-        post={deletingPost}
-        onConfirm={handleDeletePost}
-      />
+      <AlertDialog open={!!deletingPost} onOpenChange={(open) => !open && setDeletingPost(undefined)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Blog Post</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{deletingPost?.title}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeletePost}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

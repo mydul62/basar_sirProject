@@ -1,14 +1,26 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { DialogFooter } from "@/components/ui/dialog"
+
+const grantSchema = z.object({
+  title: z.string().min(1, "Project title is required"),
+  role: z.string().min(1, "Role is required"),
+  fundingAgency: z.string().min(1, "Funding agency is required"),
+  location: z.string().optional(),
+  amount: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  description: z.string().optional(),
+})
+
+type GrantFormData = z.infer<typeof grantSchema>
 
 interface GrantFormProps {
   initialData?: any
@@ -17,43 +29,41 @@ interface GrantFormProps {
 }
 
 export function GrantForm({ initialData, onSubmit, onCancel }: GrantFormProps) {
-  const [formData, setFormData] = useState({
-    title: "",
-    role: "Principal Investigator",
-    fundingAgency: "",
-    location: "",
-    amount: "",
-    startDate: "",
-    endDate: "",
-    description: "",
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setValue,
+    watch,
+  } = useForm<GrantFormData>({
+    resolver: zodResolver(grantSchema),
+    defaultValues: {
+      title: initialData?.title || "",
+      role: initialData?.role || "Principal Investigator",
+      fundingAgency: initialData?.fundingAgency || "",
+      location: initialData?.location || "",
+      amount: initialData?.amount || "",
+      startDate: initialData?.startDate || "",
+      endDate: initialData?.endDate || "",
+      description: initialData?.description || "",
+    },
   })
 
-  useEffect(() => {
-    if (initialData) {
-      setFormData(initialData)
-    }
-  }, [initialData])
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSubmit(formData)
+  const onFormSubmit = (data: GrantFormData) => {
+    onSubmit(data)
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
       <div>
         <Label htmlFor="title">Project Title *</Label>
-        <Input
-          id="title"
-          value={formData.title}
-          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          required
-        />
+        <Input id="title" {...register("title")} />
+        {errors.title && <p className="text-sm text-red-500">{errors.title.message}</p>}
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="role">Role</Label>
-          <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+          <Select value={watch("role")} onValueChange={(value) => setValue("role", value)}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -64,69 +74,44 @@ export function GrantForm({ initialData, onSubmit, onCancel }: GrantFormProps) {
               <SelectItem value="Research Associate">Research Associate</SelectItem>
             </SelectContent>
           </Select>
+          {errors.role && <p className="text-sm text-red-500">{errors.role.message}</p>}
         </div>
         <div>
           <Label htmlFor="location">Location</Label>
-          <Input
-            id="location"
-            value={formData.location}
-            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-          />
+          <Input id="location" {...register("location")} />
         </div>
       </div>
       <div>
         <Label htmlFor="fundingAgency">Funding Agency *</Label>
-        <Input
-          id="fundingAgency"
-          value={formData.fundingAgency}
-          onChange={(e) => setFormData({ ...formData, fundingAgency: e.target.value })}
-          required
-        />
+        <Input id="fundingAgency" {...register("fundingAgency")} />
+        {errors.fundingAgency && <p className="text-sm text-red-500">{errors.fundingAgency.message}</p>}
       </div>
       <div className="grid grid-cols-3 gap-4">
         <div>
           <Label htmlFor="amount">Amount</Label>
-          <Input
-            id="amount"
-            value={formData.amount}
-            onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-            placeholder="$50,000"
-          />
+          <Input id="amount" {...register("amount")} placeholder="$50,000" />
         </div>
         <div>
           <Label htmlFor="startDate">Start Date</Label>
-          <Input
-            id="startDate"
-            type="date"
-            value={formData.startDate}
-            onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-          />
+          <Input id="startDate" type="date" {...register("startDate")} />
         </div>
         <div>
           <Label htmlFor="endDate">End Date</Label>
-          <Input
-            id="endDate"
-            type="date"
-            value={formData.endDate}
-            onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-          />
+          <Input id="endDate" type="date" {...register("endDate")} />
         </div>
       </div>
       <div>
         <Label htmlFor="description">Description</Label>
-        <Textarea
-          id="description"
-          value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          rows={3}
-        />
+        <Textarea id="description" {...register("description")} rows={3} />
       </div>
-      <DialogFooter>
+      <div className="flex gap-2 pt-4">
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Saving..." : initialData ? "Update" : "Add"} Grant
+        </Button>
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit">{initialData ? "Update" : "Add"} Grant</Button>
-      </DialogFooter>
+      </div>
     </form>
   )
 }

@@ -6,35 +6,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Edit, Trash2, DollarSign } from "lucide-react"
+import Link from "next/link"
 import { grants as initialGrants } from "@/src/lib/demo-data"
-import { GrantModals } from "@/src/components/dashboard/grant-modals"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export default function GrantsPage() {
   const [grants, setGrants] = useState(initialGrants)
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [selectedGrant, setSelectedGrant] = useState<any>(null)
-
-  const handleAdd = (grantData: any) => {
-    const newGrant = {
-      ...grantData,
-      id: Date.now().toString(),
-    }
-    setGrants([newGrant, ...grants])
-    setIsAddModalOpen(false)
-  }
-
-  const handleEdit = (grantData: any) => {
-    setGrants(grants.map((grant) => (grant.id === selectedGrant.id ? { ...grantData, id: selectedGrant.id } : grant)))
-    setIsEditModalOpen(false)
-    setSelectedGrant(null)
-  }
+  const [deletingGrant, setDeletingGrant] = useState<any>(null)
 
   const handleDelete = () => {
-    setGrants(grants.filter((grant) => grant.id !== selectedGrant.id))
-    setIsDeleteModalOpen(false)
-    setSelectedGrant(null)
+    if (!deletingGrant) return
+
+    setGrants(grants.filter((grant) => grant.id !== deletingGrant.id))
+    setDeletingGrant(null)
   }
 
   return (
@@ -44,9 +37,11 @@ export default function GrantsPage() {
           <h1 className="text-3xl font-bold text-foreground">Grants & Projects</h1>
           <p className="text-muted-foreground">Manage your research funding and project grants</p>
         </div>
-        <Button onClick={() => setIsAddModalOpen(true)} className="gap-2">
-          <Plus className="w-4 h-4" />
-          Add Grant
+        <Button asChild className="gap-2">
+          <Link href="/dashboard/grants/add">
+            <Plus className="w-4 h-4" />
+            Add Grant
+          </Link>
         </Button>
       </div>
 
@@ -86,24 +81,12 @@ export default function GrantsPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedGrant(grant)
-                          setIsEditModalOpen(true)
-                        }}
-                      >
-                        <Edit className="w-4 h-4" />
+                      <Button variant="ghost" size="sm" asChild>
+                        <Link href={`/dashboard/grants/${grant.id}/edit`}>
+                          <Edit className="w-4 h-4" />
+                        </Link>
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedGrant(grant)
-                          setIsDeleteModalOpen(true)
-                        }}
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => setDeletingGrant(grant)}>
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -115,18 +98,25 @@ export default function GrantsPage() {
         </CardContent>
       </Card>
 
-      <GrantModals
-        isAddModalOpen={isAddModalOpen}
-        setIsAddModalOpen={setIsAddModalOpen}
-        isEditModalOpen={isEditModalOpen}
-        setIsEditModalOpen={setIsEditModalOpen}
-        isDeleteModalOpen={isDeleteModalOpen}
-        setIsDeleteModalOpen={setIsDeleteModalOpen}
-        selectedGrant={selectedGrant}
-        onAdd={handleAdd}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
+      <AlertDialog open={!!deletingGrant} onOpenChange={(open) => !open && setDeletingGrant(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Grant</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{deletingGrant?.title}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

@@ -11,8 +11,12 @@ import { ScrollToTop } from "@/src/components/ui/scroll-to-top"
 import { BlogSection } from "@/src/components/sections/blog-section"
 import { CertificationsSection } from "@/src/components/sections/certifications-section"
 import { ActivitiesSection } from "@/src/components/sections/activities-section"
+import { GetAllBlog } from "@/src/services/blogs"
 
-export default function HomePage() {
+const Page = async () => {
+  const data = await GetAllBlog()
+  console.log(data)
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -26,7 +30,7 @@ export default function HomePage() {
          <ActivitiesSection/>
         <NetworksSection />
         <GrantsSection />
-        <BlogSection />
+        <BlogSection posts = {data} />
         <ContactSection />
       </main>
       <ScrollToTop />
@@ -44,3 +48,6 @@ export default function HomePage() {
     </div>
   )
 }
+
+
+export default Page;

@@ -6,6 +6,7 @@ import { Award, Calendar, ExternalLink } from "lucide-react"
 import Image from "next/image"
 import { demoCertificates } from "@/src/lib/demo-data"
 
+
 export function CertificationsSection() {
   return (
     <section id="certifications" className="py-20 bg-background">

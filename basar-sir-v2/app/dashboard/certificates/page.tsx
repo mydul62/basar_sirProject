@@ -1,4 +1,5 @@
 "use client"
+
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -6,43 +7,28 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { Plus, Edit, Trash2, ExternalLink } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 import { demoCertificates, type Certificate } from "@/src/lib/demo-data"
-import { CertificateModals } from "@/src/components/dashboard/certificate-modals"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export default function CertificatesPage() {
   const [certificates, setCertificates] = useState<Certificate[]>(demoCertificates)
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null)
-
-  const handleAdd = (certificateData: Omit<Certificate, "id">) => {
-    const newCertificate: Certificate = {
-      ...certificateData,
-      id: Date.now().toString(),
-    }
-    setCertificates([newCertificate, ...certificates])
-    setIsAddModalOpen(false)
-  }
-
-  const handleEdit = (certificateData: Omit<Certificate, "id">) => {
-    if (!selectedCertificate) return
-
-    setCertificates(
-      certificates.map((cert) =>
-        cert.id === selectedCertificate.id ? { ...certificateData, id: selectedCertificate.id } : cert,
-      ),
-    )
-    setIsEditModalOpen(false)
-    setSelectedCertificate(null)
-  }
+  const [deletingCertificate, setDeletingCertificate] = useState<Certificate | null>(null)
 
   const handleDelete = () => {
-    if (!selectedCertificate) return
+    if (!deletingCertificate) return
 
-    setCertificates(certificates.filter((cert) => cert.id !== selectedCertificate.id))
-    setIsDeleteModalOpen(false)
-    setSelectedCertificate(null)
+    setCertificates(certificates.filter((cert) => cert.id !== deletingCertificate.id))
+    setDeletingCertificate(null)
   }
 
   return (
@@ -52,9 +38,11 @@ export default function CertificatesPage() {
           <h1 className="text-3xl font-bold text-foreground">Certifications</h1>
           <p className="text-muted-foreground">Manage your professional certifications and credentials</p>
         </div>
-        <Button onClick={() => setIsAddModalOpen(true)} className="gap-2">
-          <Plus className="w-4 h-4" />
-          Add Certificate
+        <Button asChild className="gap-2">
+          <Link href="/dashboard/certificates/add">
+            <Plus className="w-4 h-4" />
+            Add Certificate
+          </Link>
         </Button>
       </div>
 
@@ -113,24 +101,12 @@ export default function CertificatesPage() {
                           <ExternalLink className="w-4 h-4" />
                         </Button>
                       )}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedCertificate(certificate)
-                          setIsEditModalOpen(true)
-                        }}
-                      >
-                        <Edit className="w-4 h-4" />
+                      <Button variant="ghost" size="sm" asChild>
+                        <Link href={`/dashboard/certificates/${certificate.id}/edit`}>
+                          <Edit className="w-4 h-4" />
+                        </Link>
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedCertificate(certificate)
-                          setIsDeleteModalOpen(true)
-                        }}
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => setDeletingCertificate(certificate)}>
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -142,18 +118,25 @@ export default function CertificatesPage() {
         </CardContent>
       </Card>
 
-      <CertificateModals
-        isAddModalOpen={isAddModalOpen}
-        setIsAddModalOpen={setIsAddModalOpen}
-        isEditModalOpen={isEditModalOpen}
-        setIsEditModalOpen={setIsEditModalOpen}
-        isDeleteModalOpen={isDeleteModalOpen}
-        setIsDeleteModalOpen={setIsDeleteModalOpen}
-        selectedCertificate={selectedCertificate}
-        onAdd={handleAdd}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
+      <AlertDialog open={!!deletingCertificate} onOpenChange={(open) => !open && setDeletingCertificate(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Certificate</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{deletingCertificate?.title}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

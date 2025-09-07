@@ -3,13 +3,14 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Calendar, Clock, ArrowRight } from "lucide-react"
-import { demoBlogPosts } from "@/src/lib/demo-data"
+import { BlogPost, demoBlogPosts } from "@/src/lib/demo-data"
 import Image from "next/image"
 import Link from "next/link"
 
-export function BlogSection() {
-  const publishedPosts = demoBlogPosts.filter((post) => post.status === "published")
-
+export function BlogSection({posts}:{posts:BlogPost[]}) {
+console.log(posts)
+  const publishedPosts = posts.filter((post) => post.status === "published")
+ console.log(publishedPosts)
   return (
     <section id="blog" className="py-20 px-4 bg-muted/30">
       <div className="container mx-auto ">

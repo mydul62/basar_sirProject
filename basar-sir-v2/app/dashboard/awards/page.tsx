@@ -1,35 +1,28 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Edit, Trash2, Trophy } from "lucide-react"
 import { awards as initialAwards } from "@/src/lib/demo-data"
-import { AwardModals } from "@/src/components/dashboard/award-modals"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export default function AwardsPage() {
   const [awards, setAwards] = useState(initialAwards)
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [selectedAward, setSelectedAward] = useState<any>(null)
-
-  const handleAdd = (awardData: any) => {
-    const newAward = {
-      ...awardData,
-      id: Date.now().toString(),
-    }
-    setAwards([newAward, ...awards])
-    setIsAddModalOpen(false)
-  }
-
-  const handleEdit = (awardData: any) => {
-    setAwards(awards.map((award) => (award.id === selectedAward.id ? { ...awardData, id: selectedAward.id } : award)))
-    setIsEditModalOpen(false)
-    setSelectedAward(null)
-  }
 
   const handleDelete = () => {
     setAwards(awards.filter((award) => award.id !== selectedAward.id))
@@ -44,9 +37,11 @@ export default function AwardsPage() {
           <h1 className="text-3xl font-bold text-foreground">Awards & Honours</h1>
           <p className="text-muted-foreground">Manage your achievements and recognition</p>
         </div>
-        <Button onClick={() => setIsAddModalOpen(true)} className="gap-2">
-          <Plus className="w-4 h-4" />
-          Add Award
+        <Button asChild className="gap-2">
+          <Link href="/dashboard/awards/add">
+            <Plus className="w-4 h-4" />
+            Add Award
+          </Link>
         </Button>
       </div>
 
@@ -82,15 +77,10 @@ export default function AwardsPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedAward(award)
-                          setIsEditModalOpen(true)
-                        }}
-                      >
-                        <Edit className="w-4 h-4" />
+                      <Button variant="ghost" size="sm" asChild>
+                        <Link href={`/dashboard/awards/${award.id}/edit`}>
+                          <Edit className="w-4 h-4" />
+                        </Link>
                       </Button>
                       <Button
                         variant="ghost"
@@ -111,18 +101,25 @@ export default function AwardsPage() {
         </CardContent>
       </Card>
 
-      <AwardModals
-        isAddModalOpen={isAddModalOpen}
-        setIsAddModalOpen={setIsAddModalOpen}
-        isEditModalOpen={isEditModalOpen}
-        setIsEditModalOpen={setIsEditModalOpen}
-        isDeleteModalOpen={isDeleteModalOpen}
-        setIsDeleteModalOpen={setIsDeleteModalOpen}
-        selectedAward={selectedAward}
-        onAdd={handleAdd}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
+      <AlertDialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Award</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{selectedAward?.title}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

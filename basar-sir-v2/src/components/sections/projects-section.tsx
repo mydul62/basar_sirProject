@@ -1,12 +1,39 @@
+"use client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ExternalLink, Github, Calendar } from "lucide-react"
-import { demoProjects } from "@/src/lib/demo-data"
 import Image from "next/image"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
+import { useEffect, useState } from "react"
+import { GetAllProjects } from "@/src/services/projects"
+import { Project } from "@/src/lib/demo-data"
 
 export function ProjectsSection() {
+  const [projects, setProjects] =  useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const data = await GetAllProjects();
+        setProjects(data?.data);
+      } catch (error) {
+        console.error("Failed to fetch publications:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+console.log(projects)
+
+  if (loading) return <p>Loading...</p>;
+
+
+
   return (
     <section id="projects" className="py-20 px-4">
       <div className="container mx-auto ">
@@ -26,8 +53,8 @@ export function ProjectsSection() {
             className="w-full"
           >
             <CarouselContent className="-ml-2 md:-ml-4">
-              {demoProjects.map((project) => (
-                <CarouselItem key={project.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3">
+              {projects.map((project) => (
+                <CarouselItem key={project._id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3">
                   <Card className="bg-card border-border overflow-hidden h-full shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
                     {project.imageUrl && (
                       <div className="aspect-video relative overflow-hidden">

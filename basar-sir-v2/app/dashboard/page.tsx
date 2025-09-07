@@ -13,7 +13,7 @@ export default function DashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground font-sans">Dashboard</h1>
-          <p className="text-muted-foreground font-serif">Welcome back, Md. Abul Basa. Here's an overview of your content.</p>
+          <p className="text-muted-foreground font-serif">Welcome back, Samrat. Here's an overview of your content.</p>
         </div>
       </div>
 

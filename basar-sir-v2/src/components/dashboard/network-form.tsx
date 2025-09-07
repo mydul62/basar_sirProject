@@ -1,13 +1,22 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { DialogFooter } from "@/components/ui/dialog"
+
+const networkSchema = z.object({
+  role: z.string().min(1, "Role/Position is required"),
+  organization: z.string().min(1, "Organization is required"),
+  type: z.string().min(1, "Type is required"),
+  startYear: z.string().optional(),
+  endYear: z.string().optional(),
+})
+
+type NetworkFormData = z.infer<typeof networkSchema>
 
 interface NetworkFormProps {
   initialData?: any
@@ -16,48 +25,42 @@ interface NetworkFormProps {
 }
 
 export function NetworkForm({ initialData, onSubmit, onCancel }: NetworkFormProps) {
-  const [formData, setFormData] = useState({
-    role: "",
-    organization: "",
-    type: "Membership",
-    startYear: "",
-    endYear: "",
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setValue,
+    watch,
+  } = useForm<NetworkFormData>({
+    resolver: zodResolver(networkSchema),
+    defaultValues: {
+      role: initialData?.role || "",
+      organization: initialData?.organization || "",
+      type: initialData?.type || "Membership",
+      startYear: initialData?.startYear || "",
+      endYear: initialData?.endYear || "",
+    },
   })
 
-  useEffect(() => {
-    if (initialData) {
-      setFormData(initialData)
-    }
-  }, [initialData])
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSubmit(formData)
+  const onFormSubmit = (data: NetworkFormData) => {
+    onSubmit(data)
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
       <div>
         <Label htmlFor="role">Role/Position *</Label>
-        <Input
-          id="role"
-          value={formData.role}
-          onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-          required
-        />
+        <Input id="role" {...register("role")} />
+        {errors.role && <p className="text-sm text-red-500">{errors.role.message}</p>}
       </div>
       <div>
         <Label htmlFor="organization">Organization *</Label>
-        <Input
-          id="organization"
-          value={formData.organization}
-          onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
-          required
-        />
+        <Input id="organization" {...register("organization")} />
+        {errors.organization && <p className="text-sm text-red-500">{errors.organization.message}</p>}
       </div>
       <div>
         <Label htmlFor="type">Type</Label>
-        <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
+        <Select value={watch("type")} onValueChange={(value) => setValue("type", value)}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
@@ -69,34 +72,26 @@ export function NetworkForm({ initialData, onSubmit, onCancel }: NetworkFormProp
             <SelectItem value="Board">Board</SelectItem>
           </SelectContent>
         </Select>
+        {errors.type && <p className="text-sm text-red-500">{errors.type.message}</p>}
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="startYear">Start Year</Label>
-          <Input
-            id="startYear"
-            type="number"
-            value={formData.startYear}
-            onChange={(e) => setFormData({ ...formData, startYear: e.target.value })}
-          />
+          <Input id="startYear" type="number" {...register("startYear")} />
         </div>
         <div>
           <Label htmlFor="endYear">End Year</Label>
-          <Input
-            id="endYear"
-            type="number"
-            value={formData.endYear}
-            onChange={(e) => setFormData({ ...formData, endYear: e.target.value })}
-            placeholder="Leave empty if current"
-          />
+          <Input id="endYear" type="number" {...register("endYear")} placeholder="Leave empty if current" />
         </div>
       </div>
-      <DialogFooter>
+      <div className="flex gap-2 pt-4">
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Saving..." : initialData ? "Update" : "Add"} Network
+        </Button>
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit">{initialData ? "Update" : "Add"} Network</Button>
-      </DialogFooter>
+      </div>
     </form>
   )
 }

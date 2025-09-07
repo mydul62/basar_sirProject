@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ExternalLink, FileText } from "lucide-react"
-import { demoPublications, Publication } from "@/src/lib/demo-data"
+import {Publication } from "@/src/lib/demo-data"
 import { useEffect, useState } from "react"
 import { GetAllPublicatons } from "@/src/services/Publications"
 

@@ -6,39 +6,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Edit, Trash2, Users } from "lucide-react"
+import Link from "next/link"
 import { networks as initialNetworks } from "@/src/lib/demo-data"
-import { NetworkModals } from "@/src/components/dashboard/network-modals"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export default function NetworksPage() {
   const [networks, setNetworks] = useState(initialNetworks)
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [selectedNetwork, setSelectedNetwork] = useState<any>(null)
-
-  const handleAdd = (networkData: any) => {
-    const newNetwork = {
-      ...networkData,
-      id: Date.now().toString(),
-    }
-    setNetworks([newNetwork, ...networks])
-    setIsAddModalOpen(false)
-  }
-
-  const handleEdit = (networkData: any) => {
-    setNetworks(
-      networks.map((network) =>
-        network.id === selectedNetwork.id ? { ...networkData, id: selectedNetwork.id } : network,
-      ),
-    )
-    setIsEditModalOpen(false)
-    setSelectedNetwork(null)
-  }
+  const [deletingNetwork, setDeletingNetwork] = useState<any>(null)
 
   const handleDelete = () => {
-    setNetworks(networks.filter((network) => network.id !== selectedNetwork.id))
-    setIsDeleteModalOpen(false)
-    setSelectedNetwork(null)
+    if (!deletingNetwork) return
+
+    setNetworks(networks.filter((network) => network.id !== deletingNetwork.id))
+    setDeletingNetwork(null)
   }
 
   return (
@@ -48,9 +37,11 @@ export default function NetworksPage() {
           <h1 className="text-3xl font-bold text-foreground">Professional Networks</h1>
           <p className="text-muted-foreground">Manage your professional affiliations and memberships</p>
         </div>
-        <Button onClick={() => setIsAddModalOpen(true)} className="gap-2">
-          <Plus className="w-4 h-4" />
-          Add Network
+        <Button asChild className="gap-2">
+          <Link href="/dashboard/networks/add">
+            <Plus className="w-4 h-4" />
+            Add Network
+          </Link>
         </Button>
       </div>
 
@@ -88,24 +79,12 @@ export default function NetworksPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedNetwork(network)
-                          setIsEditModalOpen(true)
-                        }}
-                      >
-                        <Edit className="w-4 h-4" />
+                      <Button variant="ghost" size="sm" asChild>
+                        <Link href={`/dashboard/networks/${network.id}/edit`}>
+                          <Edit className="w-4 h-4" />
+                        </Link>
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedNetwork(network)
-                          setIsDeleteModalOpen(true)
-                        }}
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => setDeletingNetwork(network)}>
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -117,18 +96,25 @@ export default function NetworksPage() {
         </CardContent>
       </Card>
 
-      <NetworkModals
-        isAddModalOpen={isAddModalOpen}
-        setIsAddModalOpen={setIsAddModalOpen}
-        isEditModalOpen={isEditModalOpen}
-        setIsEditModalOpen={setIsEditModalOpen}
-        isDeleteModalOpen={isDeleteModalOpen}
-        setIsDeleteModalOpen={setIsDeleteModalOpen}
-        selectedNetwork={selectedNetwork}
-        onAdd={handleAdd}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
+      <AlertDialog open={!!deletingNetwork} onOpenChange={(open) => !open && setDeletingNetwork(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Network</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{deletingNetwork?.role}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

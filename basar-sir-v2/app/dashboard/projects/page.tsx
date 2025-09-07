@@ -1,41 +1,43 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Edit, Trash2, ExternalLink, Github } from "lucide-react"
-import { demoProjects, type Project } from "@/src/lib/demo-data"
-import { ProjectModal, DeleteProjectModal } from "@/src/components/dashboard/project-modals"
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { GetAllProjects } from "@/src/services/projects"
+import { Project } from "@/src/lib/demo-data"
 
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState<Project[]>(demoProjects)
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [editingProject, setEditingProject] = useState<Project | undefined>()
-  const [deletingProject, setDeletingProject] = useState<Project | undefined>()
+ const [projects, setProjects] = useState<Project[]>([])
 
-  const handleAddProject = (projectData: Omit<Project, "id">) => {
-    const newProject: Project = {
-      ...projectData,
-      id: Date.now().toString(), // Simple ID generation for demo
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const res = await GetAllProjects()
+        setProjects(res?.data) // assuming res is Project[]
+      } catch (error) {
+        console.error("Failed to fetch projects:", error)
+      }
     }
-    setProjects((prev) => [...prev, newProject])
-  }
 
-  const handleEditProject = (projectData: Omit<Project, "id"> & { id?: string }) => {
-    if (!projectData.id) return
-
-    setProjects((prev) =>
-      prev.map((project) => (project.id === projectData.id ? { ...(projectData as Project) } : project)),
-    )
-    setEditingProject(undefined)
-  }
-
+    fetchProjects()
+  }, [])
+  console.log(projects)
   const handleDeleteProject = () => {
-    if (!deletingProject) return
 
-    setProjects((prev) => prev.filter((project) => project.id !== deletingProject.id))
-    setDeletingProject(undefined)
   }
 
   return (
@@ -45,14 +47,16 @@ export default function ProjectsPage() {
           <h1 className="text-3xl font-bold text-foreground font-sans">Projects</h1>
           <p className="text-muted-foreground font-serif">Manage your research projects and publications.</p>
         </div>
-        <Button onClick={() => setIsAddModalOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Project
+        <Button asChild>
+          <Link href="/dashboard/projects/add">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Project
+          </Link>
         </Button>
       </div>
 
       <div className="grid gap-6">
-        {projects.map((project) => (
+        {projects?.map((project) => (
           <Card key={project.id} className="bg-card border-border">
             <CardHeader>
               <div className="flex items-start justify-between">
@@ -63,8 +67,10 @@ export default function ProjectsPage() {
                 <div className="flex items-center gap-2">
                   <Badge variant={project.status === "completed" ? "default" : "secondary"}>{project.status}</Badge>
                   <div className="flex gap-1">
-                    <Button variant="ghost" size="sm" onClick={() => setEditingProject(project)}>
-                      <Edit className="w-4 h-4" />
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link href={`/dashboard/projects/${project._id}/edit`}>
+                        <Edit className="w-4 h-4" />
+                      </Link>
                     </Button>
                     {project.githubUrl && (
                       <Button variant="ghost" size="sm" asChild>
@@ -84,7 +90,7 @@ export default function ProjectsPage() {
                       variant="ghost"
                       size="sm"
                       className="text-destructive hover:text-destructive"
-                      onClick={() => setDeletingProject(project)}
+                      onClick={() =>"vccx" }
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -111,24 +117,7 @@ export default function ProjectsPage() {
         ))}
       </div>
 
-      {/* Add Project Modal */}
-      <ProjectModal open={isAddModalOpen} onOpenChange={setIsAddModalOpen} onSubmit={handleAddProject} />
 
-      {/* Edit Project Modal */}
-      <ProjectModal
-        open={!!editingProject}
-        onOpenChange={(open) => !open && setEditingProject(undefined)}
-        project={editingProject}
-        onSubmit={handleEditProject}
-      />
-
-      {/* Delete Project Modal */}
-      <DeleteProjectModal
-        open={!!deletingProject}
-        onOpenChange={(open) => !open && setDeletingProject(undefined)}
-        project={deletingProject}
-        onConfirm={handleDeleteProject}
-      />
     </div>
   )
 }

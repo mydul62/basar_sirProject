@@ -9,10 +9,23 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { Home, BarChart3, FileText, Settings, User, ArrowLeft, BookOpen, Trophy, Users, DollarSign, Award } from "lucide-react"
+import {
+  Home,
+  BarChart3,
+  FileText,
+  Settings,
+  User,
+  ArrowLeft,
+  BookOpen,
+  Trophy,
+  Users,
+  DollarSign,
+  Award,
+  LogOut,
+} from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LogoutButton } from "./logout-button"
+import { logout } from "@/src/services/AuthService"
 
 const sidebarItems = [
   {
@@ -51,11 +64,6 @@ const sidebarItems = [
     icon: Users,
   },
   {
-    title: "Activities",
-    href: "/dashboard/activities",
-    icon: Users,
-  },
-  {
     title: "Grants",
     href: "/dashboard/grants",
     icon: DollarSign,
@@ -70,8 +78,20 @@ const sidebarItems = [
 export function DashboardSidebar() {
   const pathname = usePathname()
 
+  const isActiveRoute = (href: string) => {
+    if (href === "/dashboard") {
+      return pathname === "/dashboard"
+    }
+    return pathname.startsWith(href)
+  }
+
+  const handleLogout =async () => {
+     await  logout()
+     
+  }
+
   return (
-  <Sidebar className="border-r border-sidebar-border bg-sidebar">
+    <Sidebar className="border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="border-b border-sidebar-border p-4">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-sidebar-primary rounded-lg flex items-center justify-center">
@@ -79,7 +99,7 @@ export function DashboardSidebar() {
           </div>
           <div className="flex-1">
             <h2 className="font-semibold text-sidebar-foreground">Dashboard</h2>
-            <p className="text-xs text-sidebar-foreground/60">Md. Abul Basar</p>
+            <p className="text-xs text-sidebar-foreground/60">Samrat Kumar Dey</p>
           </div>
         </div>
       </SidebarHeader>
@@ -90,10 +110,10 @@ export function DashboardSidebar() {
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
-                isActive={pathname === item.href}
+                isActive={isActiveRoute(item.href)}
                 className={cn(
                   "w-full justify-start gap-3 px-3 py-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                  pathname === item.href &&
+                  isActiveRoute(item.href) &&
                     "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary hover:text-sidebar-primary-foreground",
                 )}
               >
@@ -117,9 +137,13 @@ export function DashboardSidebar() {
             </Link>
           </SidebarMenuButton>
 
-          <div className="mt-2">
-            <LogoutButton />
-          </div>
+          <SidebarMenuButton
+            onClick={handleLogout}
+            className="w-full justify-start gap-3 px-3 py-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground mt-2"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </SidebarMenuButton>
         </div>
       </SidebarContent>
     </Sidebar>
