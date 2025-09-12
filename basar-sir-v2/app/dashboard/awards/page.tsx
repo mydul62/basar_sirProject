@@ -1,34 +1,56 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Edit, Trash2, Trophy } from "lucide-react"
-import { awards as initialAwards } from "@/src/lib/demo-data"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+import { DeleteAward, GetAllAward } from "@/src/services/award"
 
+import Swal from "sweetalert2"
+import { IAward } from "@/src/lib/demo-data"
 export default function AwardsPage() {
-  const [awards, setAwards] = useState(initialAwards)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [selectedAward, setSelectedAward] = useState<any>(null)
+ const [awards, setAwards] = useState<IAward[]>([])
 
-  const handleDelete = () => {
-    setAwards(awards.filter((award) => award.id !== selectedAward.id))
-    setIsDeleteModalOpen(false)
-    setSelectedAward(null)
-  }
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const res = await GetAllAward()
+        setAwards(res?.data)
+      } catch (error) {
+        console.error("Failed to fetch projects:", error)
+      }
+    }
+
+    fetchProjects()
+  }, [])
+
+
+
+
+const handleDelete = async (id: string) => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "This action cannot be undone!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Yes, delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const res = await DeleteAward(id)
+        Swal.fire("Deleted!", "The award has been removed.", "success")
+      } catch (error) {
+        console.error("Delete Error:", error)
+        Swal.fire("Failed!", "Something went wrong.", "error")
+      }
+    }
+  })
+}
 
   return (
     <div className="space-y-6">
@@ -63,7 +85,7 @@ export default function AwardsPage() {
             </TableHeader>
             <TableBody>
               {awards.map((award) => (
-                <TableRow key={award.id}>
+                <TableRow key={award._id}>
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-2">
                       <Trophy className="w-4 h-4 text-yellow-500" />
@@ -86,8 +108,7 @@ export default function AwardsPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          setSelectedAward(award)
-                          setIsDeleteModalOpen(true)
+                   (handleDelete(award?._id))
                         }}
                       >
                         <Trash2 className="w-4 h-4" />
@@ -101,25 +122,6 @@ export default function AwardsPage() {
         </CardContent>
       </Card>
 
-      <AlertDialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Award</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{selectedAward?.title}"? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   )
 }

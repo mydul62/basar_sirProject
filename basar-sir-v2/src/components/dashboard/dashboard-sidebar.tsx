@@ -1,4 +1,5 @@
 "use client"
+import Swal from "sweetalert2";
 
 import { cn } from "@/lib/utils"
 import {
@@ -22,6 +23,7 @@ import {
   DollarSign,
   Award,
   LogOut,
+  Layout,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -32,6 +34,16 @@ const sidebarItems = [
     title: "Overview",
     href: "/dashboard",
     icon: Home,
+  },
+  {
+    title: "Hero Section",
+    href: "/dashboard/content/hero",
+    icon: Layout,
+  },
+  {
+    title: "About Section",
+    href: "/dashboard/content/about",
+    icon: User,
   },
   {
     title: "Projects",
@@ -47,6 +59,11 @@ const sidebarItems = [
     title: "Publications",
     href: "/dashboard/publications",
     icon: BookOpen,
+  },
+  {
+    title: "Activities",
+    href: "/dashboard/activities",
+    icon: Trophy,
   },
   {
     title: "Awards",
@@ -85,10 +102,26 @@ export function DashboardSidebar() {
     return pathname.startsWith(href)
   }
 
-  const handleLogout =async () => {
-     await  logout()
-     
+const handleLogout = async () => {
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "You will be logged out from your account!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, logout!",
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await logout();
+      Swal.fire("Logged Out!", "You have been logged out successfully.", "success");
+    } catch (error) {
+      Swal.fire("Error!", "Something went wrong while logging out.", "error");
+    }
   }
+};
 
   return (
     <Sidebar className="border-r border-sidebar-border bg-sidebar">
@@ -99,7 +132,7 @@ export function DashboardSidebar() {
           </div>
           <div className="flex-1">
             <h2 className="font-semibold text-sidebar-foreground">Dashboard</h2>
-            <p className="text-xs text-sidebar-foreground/60">Samrat Kumar Dey</p>
+            <p className="text-xs text-sidebar-foreground/60">Md. Abul Basar</p>
           </div>
         </div>
       </SidebarHeader>

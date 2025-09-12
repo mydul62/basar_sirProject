@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge"
 import { X, Plus } from "lucide-react"
 import { CreateProject } from "@/src/services/projects"
 import Swal from "sweetalert2"
+import { useRouter } from "next/navigation"
 
 const projectSchema = z.object({
   title: z.string().min(1, "Project title is required"),
@@ -54,7 +55,7 @@ export function ProjectAddForm({ onCancel }: ProjectFormProps) {
       imageFile: undefined,
     },
   })
-
+  const router = useRouter()
   const { fields, append, remove } = useFieldArray({
     control,
     name: "technologies",
@@ -98,6 +99,7 @@ const onFormSubmit = async (data: ProjectFormData) => {
       text: "Your project has been successfully created.",
       confirmButtonText: "OK",
     })
+       router.push("/dashboard/projects")
   } catch (error) {
     console.error("Error creating project:", error)
 

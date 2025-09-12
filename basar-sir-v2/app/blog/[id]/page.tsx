@@ -13,7 +13,7 @@ interface BlogDetailPageProps {
 }
 
 export default function BlogDetailPage({ params }: BlogDetailPageProps) {
-  const post = demoBlogPosts.find((p) => p.id ===  params.id)
+  const post = demoBlogPosts.find((p) => p.id === params.id)
 
   if (!post) {
     notFound()

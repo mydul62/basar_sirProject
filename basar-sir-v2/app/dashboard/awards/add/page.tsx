@@ -3,15 +3,38 @@
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { AwardForm } from "@/src/components/dashboard/award-form"
-
+import { CreateAward } from "@/src/services/award"
+import Swal from "sweetalert2"
 export default function AddAwardPage() {
   const router = useRouter()
 
-  const handleSubmit = (data: any) => {
-    // In a real app, this would save to a database
-    console.log("Adding award:", data)
-    // router.push("/dashboard/awards")
+
+
+
+const handleSubmit = async (data: any) => {
+  try {
+    const res = await CreateAward(data)
+    console.log("Response:", res)
+
+    Swal.fire({
+      icon: "success",
+      title: "Award Added!",
+      text: "The award has been created successfully.",
+      timer: 2000,
+      showConfirmButton: false,
+    })
+
+    router.push("/dashboard/awards")
+  } catch (error) {
+    console.error("Error adding award:", error)
+
+    Swal.fire({
+      icon: "error",
+      title: "Failed!",
+      text: "Something went wrong while creating the award.",
+    })
   }
+}
 
   const handleCancel = () => {
     router.push("/dashboard/awards")

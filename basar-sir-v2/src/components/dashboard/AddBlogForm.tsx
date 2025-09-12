@@ -12,7 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { X } from "lucide-react"
 import Swal from "sweetalert2"
-import { CreateBlog } from "@/src/actions/blog.actions"   // 👉 আপনার API কল এখানে থাকবে
+import { createPost } from "@/src/services/blogs"
+import { useRouter } from "next/navigation"
 
 const blogSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -29,7 +30,7 @@ type BlogFormData = z.infer<typeof blogSchema>
 export function AddBlogForm() {
   const [tags, setTags] = useState<string[]>([])
   const [newTag, setNewTag] = useState("")
-
+  const router = useRouter()
   const {
     register,
     handleSubmit,
@@ -72,13 +73,14 @@ export function AddBlogForm() {
       const { imageFile, ...restData } = data
       formData.append("data", JSON.stringify({ ...restData, tags }))
 
-      const res = await CreateBlog(formData)
-
+      const res = await createPost(formData)
+   
       Swal.fire({
         icon: "success",
         title: "Blog Created",
         text: "Your blog has been created successfully!",
       })
+          router.push("/dashboard/blog")
       console.log("Blog created:", res)
     } catch (error) {
       Swal.fire({

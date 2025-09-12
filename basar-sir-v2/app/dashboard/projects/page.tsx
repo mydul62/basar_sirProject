@@ -6,18 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Edit, Trash2, ExternalLink, Github } from "lucide-react"
-
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { GetAllProjects } from "@/src/services/projects"
+import Swal from "sweetalert2"
+import { DeleteProject, GetAllProjects } from "@/src/services/projects"
 import { Project } from "@/src/lib/demo-data"
 
 export default function ProjectsPage() {
@@ -27,7 +17,7 @@ export default function ProjectsPage() {
     const fetchProjects = async () => {
       try {
         const res = await GetAllProjects()
-        setProjects(res?.data) // assuming res is Project[]
+        setProjects(res?.data) 
       } catch (error) {
         console.error("Failed to fetch projects:", error)
       }
@@ -35,10 +25,31 @@ export default function ProjectsPage() {
 
     fetchProjects()
   }, [])
-  console.log(projects)
-  const handleDeleteProject = () => {
+const handleDelete = async (id: string) => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "This action cannot be undone!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Yes, delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const res = await DeleteProject(id)
+        console.log(res)
+        if(res.success == "true"){
+    Swal.fire("Deleted!", "The award has been removed.", "success")
+        }
 
-  }
+      } catch (error) {
+        console.error("Delete Error:", error)
+        Swal.fire("Failed!", "Something went wrong.", "error")
+      }
+    }
+  })
+}
 
   return (
     <div className="space-y-8">
@@ -57,7 +68,7 @@ export default function ProjectsPage() {
 
       <div className="grid gap-6">
         {projects?.map((project) => (
-          <Card key={project.id} className="bg-card border-border">
+          <Card key={project._id} className="bg-card border-border">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="space-y-2">
@@ -90,7 +101,7 @@ export default function ProjectsPage() {
                       variant="ghost"
                       size="sm"
                       className="text-destructive hover:text-destructive"
-                      onClick={() =>"vccx" }
+                      onClick={() =>handleDelete(project?._id) }
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>

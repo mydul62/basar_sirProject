@@ -1,17 +1,15 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { BlogForm } from "@/src/components/dashboard/AddBlogForm"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { blogPosts } from "@/src/lib/demo-data"
 
 export default function EditBlogPage({ params }: { params: { id: string } }) {
   const router = useRouter()
-  const post = blogPosts.find((p) => p.id === params.id)
+  // const post = blogPosts.find((p) => p.id === params.id)
 
-  if (!post) {
-    return <div>Blog post not found</div>
-  }
+  // if (!post) {
+  //   return <div>Blog post not found</div>
+  // }
 
   const handleSubmit = (data: any) => {
     console.log("Updating blog post:", data)
@@ -29,7 +27,7 @@ export default function EditBlogPage({ params }: { params: { id: string } }) {
           <CardTitle>Edit Blog Post</CardTitle>
         </CardHeader>
         <CardContent>
-          <BlogForm post={post} onSubmit={handleSubmit} onCancel={handleCancel} />
+          {/* <BlogForm post={post} onSubmit={handleSubmit} onCancel={handleCancel} /> */}
         </CardContent>
       </Card>
     </div>

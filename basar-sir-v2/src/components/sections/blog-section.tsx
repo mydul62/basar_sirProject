@@ -8,9 +8,7 @@ import Image from "next/image"
 import Link from "next/link"
 
 export function BlogSection({posts}:{posts:BlogPost[]}) {
-console.log(posts)
   const publishedPosts = posts.filter((post) => post.status === "published")
- console.log(publishedPosts)
   return (
     <section id="blog" className="py-20 px-4 bg-muted/30">
       <div className="container mx-auto ">
@@ -30,7 +28,7 @@ console.log(posts)
         >
           <CarouselContent className="-ml-2 md:-ml-4">
             {publishedPosts.map((post) => (
-              <CarouselItem key={post.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+              <CarouselItem key={post._id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
                 <Card className="bg-card border-border overflow-hidden h-full">
                   {post.imageUrl && (
                     <div className="aspect-video relative">
@@ -63,7 +61,7 @@ console.log(posts)
                       ))}
                     </div>
 
-                    <Link href={`/blog/${post.id}`}>
+                    <Link href={`/blog/${post._id}`}>
                       <Button variant="ghost" className="p-0 h-auto font-medium text-primary">
                         Read More
                         <ArrowRight className="w-4 h-4 ml-2" />

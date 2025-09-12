@@ -19,6 +19,8 @@ const publicationSchema = z.object({
   link: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   doi: z.string().optional(),
   abstract: z.string().optional(),
+  volume: z.string().optional(),
+  pages: z.string().optional(),
 })
 
 type PublicationFormData = z.infer<typeof publicationSchema>
@@ -48,6 +50,8 @@ export function PublicationForm({ initialData, onSubmit, onCancel }: Publication
       link: initialData?.link || "",
       doi: initialData?.doi || "",
       abstract: initialData?.abstract || "",
+      volume: initialData?.volume || "",
+      pages: initialData?.pages || "",
     },
   })
 
@@ -111,6 +115,14 @@ export function PublicationForm({ initialData, onSubmit, onCancel }: Publication
           <Label htmlFor="year">Year *</Label>
           <Input id="year" type="number" {...register("year")} />
           {errors.year && <p className="text-sm text-red-500">{errors.year.message}</p>}
+        </div>
+        <div>
+          <Label htmlFor="volume">Volume</Label>
+          <Input id="volume" {...register("volume")} placeholder="e.g., 12" />
+        </div>
+        <div>
+          <Label htmlFor="pages">Pages</Label>
+          <Input id="pages" {...register("pages")} placeholder="e.g., 101-120" />
         </div>
         <div>
           <Label htmlFor="link">Publication Link</Label>

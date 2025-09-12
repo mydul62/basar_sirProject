@@ -79,11 +79,11 @@ export function AwardForm({ initialData, onSubmit, onCancel }: AwardFormProps) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Award">Award</SelectItem>
-              <SelectItem value="Fellowship">Fellowship</SelectItem>
-              <SelectItem value="Recognition">Recognition</SelectItem>
-              <SelectItem value="Honor">Honor</SelectItem>
-              <SelectItem value="Competition">Competition</SelectItem>
+              <SelectItem value="award">Award</SelectItem>
+              <SelectItem value="fellowship">Fellowship</SelectItem>
+              <SelectItem value="recognition">Recognition</SelectItem>
+              <SelectItem value="honor">Honor</SelectItem>
+              <SelectItem value="competition">Competition</SelectItem>
             </SelectContent>
           </Select>
           {errors.type && <p className="text-sm text-destructive">{errors.type.message}</p>}

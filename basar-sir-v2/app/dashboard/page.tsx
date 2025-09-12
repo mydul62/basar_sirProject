@@ -1,74 +1,95 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { BarChart3, FileText, Settings, Plus, TrendingUp } from "lucide-react"
-import Link from "next/link"
-import { demoProjects, demoBlogPosts } from "@/src/lib/demo-data"
+import { BarChart3, FileText, Settings, Plus } from "lucide-react"
+import { Project, BlogPost } from "@/src/lib/demo-data"
+import { GetAllProjects } from "@/src/services/projects"
+import { GetAllBlog } from "@/src/services/blogs"
+import { GetAllPublicatons } from "@/src/services/Publications"
+
 
 export default function DashboardPage() {
-  const publishedPosts = demoBlogPosts.filter((post) => post.status === "published")
-  const completedProjects = demoProjects.filter((project) => project.status === "completed")
+  const [projects, setProjects] = useState<Project[]>([])
+  const [blogs, setBlogs] = useState<BlogPost[]>([])
+  const [publications, setPublications] = useState<number>(0)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const projectsRes = await GetAllProjects()
+        const blogsRes = await GetAllBlog()
+        const publicationsRes = await GetAllPublicatons()
+
+        setProjects(projectsRes?.data || [])
+        setBlogs(blogsRes?.data || [])
+        setPublications(publicationsRes?.data?.length || 0)
+      } catch (error) {
+        console.error("Failed to fetch data:", error)
+      }
+    }
+    fetchData()
+  }, [])
+
+  const completedProjects = projects.filter(project => project.status === "completed")
+  const publishedPosts = blogs.filter(blog => blog.status === "published")
 
   return (
     <div className="space-y-8">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground font-sans">Dashboard</h1>
-          <p className="text-muted-foreground font-serif">Welcome back, Samrat. Here's an overview of your content.</p>
+          <p className="text-muted-foreground font-serif">
+            Welcome back! Here's a quick overview of your content.
+          </p>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-card border-border">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <Card className="bg-card border-border hover:shadow-lg transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+            <BarChart3 className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-foreground">{demoProjects.length}</div>
+            <div className="text-2xl font-bold">{projects.length}</div>
             <p className="text-xs text-muted-foreground">{completedProjects.length} completed</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-card border-border">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="bg-card border-border hover:shadow-lg transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Blog Posts</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <FileText className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-foreground">{demoBlogPosts.length}</div>
+            <div className="text-2xl font-bold">{blogs.length}</div>
             <p className="text-xs text-muted-foreground">{publishedPosts.length} published</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-card border-border">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Research Areas</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">5</div>
-            <p className="text-xs text-muted-foreground">Active research interests</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border-border">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="bg-card border-border hover:shadow-lg transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Publications</CardTitle>
-            <Settings className="h-4 w-4 text-muted-foreground" />
+            <Settings className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-foreground">12</div>
+            <div className="text-2xl font-bold">{publications}</div>
             <p className="text-xs text-muted-foreground">Academic publications</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Quick Actions */}
+      {/* Quick Actions & Recent Activity */}
       <div className="grid gap-6 md:grid-cols-2">
-        <Card className="bg-card border-border">
+        {/* Quick Actions */}
+        <Card className="bg-card border-border hover:shadow-lg transition-shadow duration-200">
           <CardHeader>
-            <CardTitle className="text-xl font-semibold font-sans">Quick Actions</CardTitle>
+            <CardTitle className="text-xl font-semibold">Quick Actions</CardTitle>
             <CardDescription>Manage your content efficiently</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -93,35 +114,22 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card border-border">
+        {/* Recent Activity */}
+        <Card className="bg-card border-border hover:shadow-lg transition-shadow duration-200">
           <CardHeader>
-            <CardTitle className="text-xl font-semibold font-sans">Recent Activity</CardTitle>
+            <CardTitle className="text-xl font-semibold">Recent Activity</CardTitle>
             <CardDescription>Your latest content updates</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
+            {projects.slice(0, 3).map((proj) => (
+              <div key={proj._id} className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-primary rounded-full" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium">Published "Machine Learning in Healthcare"</p>
-                  <p className="text-xs text-muted-foreground">2 days ago</p>
+                  <p className="text-sm font-medium">Updated "{proj.title}" project</p>
+                  {/* <p className="text-xs text-muted-foreground">{proj.updatedAt}</p> */}
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-secondary rounded-full" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Updated "Birth Asphyxia Detection" project</p>
-                  <p className="text-xs text-muted-foreground">1 week ago</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-accent rounded-full" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Added new research interest</p>
-                  <p className="text-xs text-muted-foreground">2 weeks ago</p>
-                </div>
-              </div>
-            </div>
+            ))}
           </CardContent>
         </Card>
       </div>

@@ -1,34 +1,58 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Edit, Trash2, DollarSign } from "lucide-react"
 import Link from "next/link"
-import { grants as initialGrants } from "@/src/lib/demo-data"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
 
+import Swal from "sweetalert2"
+import { Grant } from "@/src/lib/demo-data"
+import { DeleteGrants, GetAllGrants } from "@/src/services/grants"
 export default function GrantsPage() {
-  const [grants, setGrants] = useState(initialGrants)
-  const [deletingGrant, setDeletingGrant] = useState<any>(null)
+ const [grants, setGrants] = useState<Grant[]>([])
 
-  const handleDelete = () => {
-    if (!deletingGrant) return
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const res = await GetAllGrants()
+        setGrants(res?.data)
+      } catch (error) {
+        console.error("Failed to fetch projects:", error)
+      }
+    }
 
-    setGrants(grants.filter((grant) => grant.id !== deletingGrant.id))
-    setDeletingGrant(null)
-  }
+    fetchProjects()
+  }, [])
+
+
+
+const handleDelete = async (id: string) => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "This network will be permanently deleted!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Yes, delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const res = await DeleteGrants(id)
+       if(res.success =="true"){
+        Swal.fire("Deleted!", "The network has been removed.", "success")
+       }
+      } catch (error) {
+        console.error("Delete Error:", error)
+        Swal.fire("Failed!", "Something went wrong while deleting.", "error")
+      }
+    }
+  })
+}
+
 
   return (
     <div className="space-y-6">
@@ -64,7 +88,7 @@ export default function GrantsPage() {
             </TableHeader>
             <TableBody>
               {grants.map((grant) => (
-                <TableRow key={grant.id}>
+                <TableRow key={grant._id}>
                   <TableCell className="font-medium max-w-xs">
                     <div className="flex items-center gap-2">
                       <DollarSign className="w-4 h-4 text-green-500" />
@@ -82,11 +106,11 @@ export default function GrantsPage() {
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button variant="ghost" size="sm" asChild>
-                        <Link href={`/dashboard/grants/${grant.id}/edit`}>
+                        <Link href={`/dashboard/grants/${grant._id}/edit`}>
                           <Edit className="w-4 h-4" />
                         </Link>
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => setDeletingGrant(grant)}>
+                      <Button variant="ghost" size="sm" onClick={() => handleDelete(grant?._id)}>
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -98,25 +122,7 @@ export default function GrantsPage() {
         </CardContent>
       </Card>
 
-      <AlertDialog open={!!deletingGrant} onOpenChange={(open) => !open && setDeletingGrant(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Grant</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{deletingGrant?.title}"? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+   
     </div>
   )
 }

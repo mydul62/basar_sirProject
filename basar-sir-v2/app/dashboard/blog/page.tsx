@@ -1,39 +1,60 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Edit, Trash2, Eye, Calendar, Clock } from "lucide-react"
-import { demoBlogPosts, type BlogPost } from "@/src/lib/demo-data"
+import {  type BlogPost } from "@/src/lib/demo-data"
 import Link from "next/link"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-
+import { DeleteBlog, GetAllBlog } from "@/src/services/blogs"
+import Swal from "sweetalert2"
 export default function BlogPage() {
-  const [posts, setPosts] = useState<BlogPost[]>(demoBlogPosts)
-  const [deletingPost, setDeletingPost] = useState<BlogPost | undefined>()
+ const [posts, setPosts] = useState<BlogPost[]>([])
 
-  const handleDeletePost = () => {
-    if (!deletingPost) return
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const res = await GetAllBlog()
+        setPosts(res?.data)
+      } catch (error) {
+        console.error("Failed to fetch projects:", error)
+      }
+    }
 
-    setPosts((prev) => prev.filter((post) => post.id !== deletingPost.id))
-    setDeletingPost(undefined)
-  }
+    fetchProjects()
+  }, [])
 
-  const handleToggleStatus = (post: BlogPost) => {
-    setPosts((prev) =>
-      prev.map((p) => (p.id === post.id ? { ...p, status: p.status === "published" ? "draft" : "published" } : p)),
-    )
-  }
+
+
+const handleDeletePost = async (id: string) => {
+console.log(id)
+  Swal.fire({
+    title: "Are you sure?",
+    text: "This blog post will be permanently deleted!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Yes, delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const res = await DeleteBlog(id)
+        console.log("Delete Response:", res)
+      if(res.success=='true'){
+         Swal.fire("Deleted!", "The blog post has been removed.", "success")
+     }
+    
+      } catch (error) {
+        console.error("Delete Error:", error)
+        Swal.fire("Failed!", "Something went wrong while deleting.", "error")
+      }
+    }
+  })
+}
+
+
 
   return (
     <div className="space-y-8">
@@ -52,7 +73,7 @@ export default function BlogPage() {
 
       <div className="grid gap-6">
         {posts.map((post) => (
-          <Card key={post.id} className="bg-card border-border">
+          <Card key={post._id} className="bg-card border-border">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="space-y-2 flex-1">
@@ -73,13 +94,12 @@ export default function BlogPage() {
                   <Badge
                     variant={post.status === "published" ? "default" : "secondary"}
                     className="cursor-pointer"
-                    onClick={() => handleToggleStatus(post)}
                   >
                     {post.status}
                   </Badge>
                   <div className="flex gap-1">
                     <Button variant="ghost" size="sm" asChild>
-                      <Link href={`/dashboard/blog/${post.id}/edit`}>
+                      <Link href={`/dashboard/blog/${post._id}/edit`}>
                         <Edit className="w-4 h-4" />
                       </Link>
                     </Button>
@@ -90,7 +110,7 @@ export default function BlogPage() {
                       variant="ghost"
                       size="sm"
                       className="text-destructive hover:text-destructive"
-                      onClick={() => setDeletingPost(post)}
+                      onClick={() => handleDeletePost(post?._id)}
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -114,25 +134,7 @@ export default function BlogPage() {
         ))}
       </div>
 
-      <AlertDialog open={!!deletingPost} onOpenChange={(open) => !open && setDeletingPost(undefined)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Blog Post</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{deletingPost?.title}"? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeletePost}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+
     </div>
   )
 }

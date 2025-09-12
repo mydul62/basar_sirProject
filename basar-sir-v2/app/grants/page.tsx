@@ -1,32 +1,118 @@
-import { Navigation } from "@/src/components/navigation"
+"use client"
+
 import { ScrollToTop } from "@/src/components/ui/scroll-to-top"
-import { grants } from "@/src/lib/demo-data"
+import { PageHeader } from "@/components/ui/page-header"
+import { SearchFilterBar } from "@/components/ui/search-filter-bar"
+import { useSearchFilter } from "@/hooks/use-search-filter"
+import { Grant } from "@/src/lib/demo-data"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { DollarSign, Calendar, MapPin, Users } from "lucide-react"
+import { useEffect, useState } from "react"
+import { GetAllGrants } from "@/src/services/grants"
 
 export default function GrantsPage() {
+  const [grants, setGrants] = useState<Grant[]>([])
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const res = await GetAllGrants()
+        setGrants(res?.data || [])
+      } catch (error) {
+        console.error("Failed to fetch projects:", error)
+      }
+    }
+
+    fetchProjects()
+  }, [])
+
+  const {
+    searchValue,
+    setSearchValue,
+    activeFilters,
+    handleFilterChange,
+    clearFilters,
+    filteredData: filteredGrants,
+  } = useSearchFilter({
+    data: grants,
+    searchFields: ["title", "fundingAgency", "location", "role"],
+    filterFields: {
+      status: "status",
+      role: "role",
+      location: "location",
+    },
+  })
+
+  const filterOptions = [
+    {
+      key: "status",
+      label: "Status",
+      options: Array.from(new Set(grants.map((g) => g.status)))
+        .map((status) => ({
+          value: status,
+          label: status,
+          count: grants.filter((g) => g.status === status).length,
+        }))
+        .sort((a, b) => b.count - a.count),
+    },
+    {
+      key: "role",
+      label: "Role",
+      options: Array.from(new Set(grants.map((g) => g.role)))
+        .map((role) => ({
+          value: role,
+          label: role,
+          count: grants.filter((g) => g.role === role).length,
+        }))
+        .sort((a, b) => b.count - a.count),
+    },
+    {
+      key: "location",
+      label: "Location",
+      options: Array.from(new Set(grants.map((g) => g.location).filter(Boolean)))
+        .map((location) => ({
+          value: location!,
+          label: location!,
+          count: grants.filter((g) => g.location === location).length,
+        }))
+        .sort((a, b) => b.count - a.count),
+    },
+  ]
+
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      <main className="ml-0 lg:ml-64">
-        <div className="container mx-auto px-4 py-16">
-          {/* Header */}
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-6">
-              <DollarSign className="w-8 h-8 text-primary" />
-            </div>
-            <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-6 font-serif">Grants & Projects</h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Research funding and project leadership in machine learning, healthcare informatics, and educational
-              technology from government agencies and international organizations.
+    <div className="min-h-screen container mx-auto px-4 bg-background">
+      <PageHeader
+        title="Grants & Projects"
+        description="Research funding and project leadership in machine learning, healthcare informatics, and educational technology"
+      />
+
+      <main>
+        <div className="py-8">
+          {/* Search and filters */}
+          <div className="mb-8">
+            <SearchFilterBar
+              searchValue={searchValue}
+              onSearchChange={setSearchValue}
+              filters={filterOptions}
+              activeFilters={activeFilters}
+              onFilterChange={handleFilterChange}
+              onClearFilters={clearFilters}
+              placeholder="Search grants by title, funding agency, role, or location..."
+            />
+          </div>
+
+          {/* Results count */}
+          <div className="mb-6">
+            <p className="text-sm text-muted-foreground">
+              Showing {filteredGrants.length} of {grants.length} grants
             </p>
           </div>
 
           {/* Grants Grid */}
           <div className="space-y-8">
-            {grants.map((grant, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow duration-300">
+            {filteredGrants.map((grant) => (
+              <Card key={grant._id} className="hover:shadow-lg transition-shadow duration-300">
                 <CardHeader>
                   <div className="flex justify-between items-start gap-4">
                     <div className="flex-1">
@@ -40,7 +126,7 @@ export default function GrantsPage() {
                         </div>
                         <div className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
-                          {grant.period}
+                          {grant.startYear} – {grant.endYear || "Ongoing"}
                         </div>
                         {grant.location && (
                           <div className="flex items-center gap-1">
@@ -51,7 +137,7 @@ export default function GrantsPage() {
                       </div>
                     </div>
                     <div className="flex flex-col gap-2 items-end">
-                      <Badge variant="secondary" className="shrink-0">
+                      <Badge variant="secondary" className="shrink-0 capitalize">
                         {grant.status}
                       </Badge>
                       {grant.amount && (
@@ -66,83 +152,63 @@ export default function GrantsPage() {
                   <div className="space-y-4">
                     <div>
                       <p className="font-medium text-foreground mb-2">Funding Agency</p>
-                      <p className="text-muted-foreground">{grant.agency}</p>
+                      <p className="text-muted-foreground">{grant.fundingAgency}</p>
                     </div>
-
-                    {grant.description && (
-                      <div>
-                        <p className="font-medium text-foreground mb-2">Project Description</p>
-                        <p className="text-muted-foreground leading-relaxed">{grant.description}</p>
-                      </div>
-                    )}
-
-                    {grant.objectives && (
-                      <div>
-                        <p className="font-medium text-foreground mb-2">Key Objectives</p>
-                        <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                          {grant.objectives.map((objective, idx) => (
-                            <li key={idx}>{objective}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {grant.collaborators && (
-                      <div>
-                        <p className="font-medium text-foreground mb-2">Collaborators</p>
-                        <div className="flex flex-wrap gap-2">
-                          {grant.collaborators.map((collaborator, idx) => (
-                            <Badge key={idx} variant="outline" className="text-xs">
-                              {collaborator}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {grant.outcomes && (
-                      <div className="bg-muted/50 rounded-lg p-4">
-                        <p className="font-medium text-foreground mb-2">Expected Outcomes</p>
-                        <p className="text-sm text-muted-foreground">{grant.outcomes}</p>
-                      </div>
-                    )}
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
 
+          {/* No results message */}
+          {filteredGrants.length === 0 && (
+            <div className="text-center py-12">
+              <DollarSign className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No grants found</h3>
+              <p className="text-muted-foreground mb-4">
+                Try adjusting your search terms or filters to find what you're looking for.
+              </p>
+              <button onClick={clearFilters} className="text-primary hover:text-primary/80">
+                Clear all filters
+              </button>
+            </div>
+          )}
+
           {/* Grant Stats */}
-          <div className="mt-16 grid grid-cols-1 md:grid-cols-4 gap-6">
-            <Card className="text-center">
-              <CardContent className="pt-6">
-                <div className="text-3xl font-bold text-primary mb-2">{grants.length}</div>
-                <p className="text-muted-foreground">Total Grants</p>
-              </CardContent>
-            </Card>
-            <Card className="text-center">
-              <CardContent className="pt-6">
-                <div className="text-3xl font-bold text-primary mb-2">
-                  {grants.filter((g) => g.role === "Principal Investigator").length}
-                </div>
-                <p className="text-muted-foreground">As PI</p>
-              </CardContent>
-            </Card>
-            <Card className="text-center">
-              <CardContent className="pt-6">
-                <div className="text-3xl font-bold text-primary mb-2">
-                  {grants.filter((g) => g.status === "Active").length}
-                </div>
-                <p className="text-muted-foreground">Active Projects</p>
-              </CardContent>
-            </Card>
-            <Card className="text-center">
-              <CardContent className="pt-6">
-                <div className="text-3xl font-bold text-primary mb-2">{new Set(grants.map((g) => g.agency)).size}</div>
-                <p className="text-muted-foreground">Funding Agencies</p>
-              </CardContent>
-            </Card>
-          </div>
+          {filteredGrants.length > 0 && (
+            <div className="mt-16 grid grid-cols-1 md:grid-cols-4 gap-6">
+              <Card className="text-center">
+                <CardContent className="pt-6">
+                  <div className="text-3xl font-bold text-primary mb-2">{filteredGrants.length}</div>
+                  <p className="text-muted-foreground">Total Grants</p>
+                </CardContent>
+              </Card>
+              <Card className="text-center">
+                <CardContent className="pt-6">
+                  <div className="text-3xl font-bold text-primary mb-2">
+                    {filteredGrants.filter((g) => g.role === "Principal Investigator").length}
+                  </div>
+                  <p className="text-muted-foreground">As PI</p>
+                </CardContent>
+              </Card>
+              <Card className="text-center">
+                <CardContent className="pt-6">
+                  <div className="text-3xl font-bold text-primary mb-2">
+                    {filteredGrants.filter((g) => g.status === "active").length}
+                  </div>
+                  <p className="text-muted-foreground">Active Projects</p>
+                </CardContent>
+              </Card>
+              <Card className="text-center">
+                <CardContent className="pt-6">
+                  <div className="text-3xl font-bold text-primary mb-2">
+                    {new Set(filteredGrants.map((g) => g.fundingAgency)).size}
+                  </div>
+                  <p className="text-muted-foreground">Funding Agencies</p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
       </main>
       <ScrollToTop />

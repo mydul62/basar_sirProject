@@ -1,26 +1,50 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Award, Calendar, ExternalLink } from "lucide-react"
-import Image from "next/image"
-import { demoCertificates } from "@/src/lib/demo-data"
-
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Award, Calendar, ExternalLink } from "lucide-react";
+import Image from "next/image";
+import { Certificate } from "@/src/lib/demo-data";
+import { useEffect, useState } from "react";
+import { GetAllCertification } from "@/src/services/certification";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export function CertificationsSection() {
+  const [certificates, setCertificate] = useState<Certificate[]>([]);
+
+  useEffect(() => {
+    const fetchCertificate = async () => {
+      try {
+        const res = await GetAllCertification();
+        setCertificate(res?.data || []);
+      } catch (error) {
+        console.error("Failed to fetch certificates:", error);
+      }
+    };
+
+    fetchCertificate();
+  }, []);
+
   return (
     <section id="certifications" className="py-20 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-foreground mb-4">Certifications</h2>
+          <h2 className="text-4xl font-bold text-foreground mb-4">
+            Certifications
+          </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Professional certifications and credentials demonstrating expertise in various technologies
+            Professional certifications and credentials demonstrating expertise
+            in various technologies
           </p>
         </div>
 
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-2">
-          {demoCertificates.map((cert) => (
-            <Card key={cert.id} className="hover:shadow-lg transition-all duration-300 group">
+          {certificates.slice(0, 4).map((cert) => (
+            <Card
+              key={cert._id}
+              className="hover:shadow-lg transition-all duration-300 group"
+            >
               <CardHeader className="pb-4">
                 <div className="flex items-start gap-4">
                   <div className="relative w-20 h-20 flex-shrink-0">
@@ -35,7 +59,9 @@ export function CertificationsSection() {
                     <CardTitle className="text-lg leading-tight mb-2 group-hover:text-primary transition-colors">
                       {cert.title}
                     </CardTitle>
-                    <p className="text-sm text-muted-foreground font-medium">{cert.issuer}</p>
+                    <p className="text-sm text-muted-foreground font-medium">
+                      {cert.issuer}
+                    </p>
                     <div className="flex items-center gap-2 mt-2">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
                       <span className="text-sm text-muted-foreground">
@@ -46,7 +72,9 @@ export function CertificationsSection() {
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
-                <p className="text-sm text-muted-foreground mb-4">{cert.description}</p>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {cert.description}
+                </p>
 
                 <div className="flex flex-wrap gap-2 mb-4">
                   {cert.skills.map((skill) => (
@@ -59,12 +87,16 @@ export function CertificationsSection() {
                 <div className="flex items-center justify-between pt-2 border-t border-border">
                   <div className="flex items-center gap-2">
                     <Award className="h-4 w-4 text-primary" />
-                    <span className="text-xs text-muted-foreground">ID: {cert.credentialId}</span>
+                    <span className="text-xs text-muted-foreground">
+                      ID: {cert.credentialId}
+                    </span>
                   </div>
                   {cert.verificationUrl && (
                     <button
                       className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
-                      onClick={() => window.open(cert.verificationUrl, "_blank")}
+                      onClick={() =>
+                        window.open(cert.verificationUrl, "_blank")
+                      }
                     >
                       <ExternalLink className="h-3 w-3" />
                       Verify
@@ -75,7 +107,26 @@ export function CertificationsSection() {
             </Card>
           ))}
         </div>
+
+        {/* View More Link */}
+        {certificates.length > 4 && (
+          <div className="text-center mt-10">
+            <Link
+              href="/certificates" // 👈 make sure you create this page
+              className="text-emerald-600 hover:underline text-sm font-medium"
+            >
+              <Button
+                variant="outline"
+                size="lg"
+                className="hover:bg-primary hover:text-primary-foreground transition-colors bg-transparent"
+              >
+                {" "}
+                View More →
+              </Button>
+            </Link>
+          </div>
+        )}
       </div>
     </section>
-  )
+  );
 }

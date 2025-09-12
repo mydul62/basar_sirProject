@@ -1,7 +1,13 @@
+"use client"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { DollarSign, MapPin, Calendar, User } from "lucide-react"
-import { demoGrants } from "@/src/lib/demo-data"
+import { Grant } from "@/src/lib/demo-data"
+import { useEffect, useState } from "react"
+import { GetAllGrants } from "@/src/services/grants"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -17,6 +23,23 @@ const getStatusColor = (status: string) => {
 }
 
 export function GrantsSection() {
+  const [grants, setGrants] = useState<Grant[]>([])
+
+  useEffect(() => {
+    const fetchGrants = async () => {
+      try {
+        const res = await GetAllGrants()
+        setGrants(res?.data || [])
+      } catch (error) {
+        console.error("Failed to fetch grants:", error)
+      }
+    }
+
+    fetchGrants()
+  }, [])
+
+  const displayedGrants = grants.slice(0, 3)
+
   return (
     <section id="grants" className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
@@ -27,9 +50,9 @@ export function GrantsSection() {
           </p>
         </div>
 
-        <div className="space-y-6">
-          {demoGrants.map((grant) => (
-            <Card key={grant.id} className="hover:shadow-lg transition-shadow">
+        <div className="space-y-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {displayedGrants.map((grant) => (
+            <Card key={grant._id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
@@ -71,6 +94,21 @@ export function GrantsSection() {
             </Card>
           ))}
         </div>
+
+        {grants.length > 3 && (
+          <div className="mt-8 text-center">
+            <Link href="/grants" className="">
+                <Button
+                variant="outline"
+                size="lg"
+                className="hover:bg-primary hover:text-primary-foreground transition-colors bg-transparent"
+              >
+                {" "}
+                View More →
+              </Button>
+            </Link>
+          </div>
+        )}
       </div>
     </section>
   )

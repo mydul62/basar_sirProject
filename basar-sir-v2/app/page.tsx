@@ -14,13 +14,13 @@ import { ActivitiesSection } from "@/src/components/sections/activities-section"
 import { GetAllBlog } from "@/src/services/blogs"
 
 const Page = async () => {
-  const data = await GetAllBlog()
-  console.log(data)
+  const {data} = await GetAllBlog()
 
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
       <main className="">
+      
         <HeroSection />
         <AboutSection />
         <ProjectsSection />
@@ -30,7 +30,7 @@ const Page = async () => {
          <ActivitiesSection/>
         <NetworksSection />
         <GrantsSection />
-        <BlogSection posts = {data} />
+        {/* <BlogSection posts = {data} /> */}
         <ContactSection />
       </main>
       <ScrollToTop />

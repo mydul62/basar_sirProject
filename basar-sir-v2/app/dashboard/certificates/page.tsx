@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -8,28 +8,54 @@ import { Badge } from "@/components/ui/badge"
 import { Plus, Edit, Trash2, ExternalLink } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { demoCertificates, type Certificate } from "@/src/lib/demo-data"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-
+import { type Certificate } from "@/src/lib/demo-data"
+import { DeleteCertification, GetAllCertification } from "@/src/services/certification"
+import Swal from "sweetalert2"
 export default function CertificatesPage() {
-  const [certificates, setCertificates] = useState<Certificate[]>(demoCertificates)
-  const [deletingCertificate, setDeletingCertificate] = useState<Certificate | null>(null)
+ const [certificates, setCertificate] = useState<Certificate[]>([])
 
-  const handleDelete = () => {
-    if (!deletingCertificate) return
+  useEffect(() => {
+    const fetchcerticate= async () => {
+      try {
+        const res = await GetAllCertification()
+        setCertificate(res?.data) 
+    
+      } catch (error) {
+        console.error("Failed to fetch certicates:", error)
+      }
+    }
 
-    setCertificates(certificates.filter((cert) => cert.id !== deletingCertificate.id))
-    setDeletingCertificate(null)
-  }
+    fetchcerticate()
+  }, [])
+
+
+
+const handleDelete = async (id: string) => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "This certification will be permanently deleted!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Yes, delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const res = await DeleteCertification(id)
+     
+   if(res.success == "true"){
+      Swal.fire("Deleted!", "The certification has been removed.", "success")
+   }
+     
+      } catch (error) {
+        console.error("Delete Error:", error)
+        Swal.fire("Failed!", "Something went wrong while deleting.", "error")
+      }
+    }
+  })
+}
+
 
   return (
     <div className="space-y-6">
@@ -65,7 +91,7 @@ export default function CertificatesPage() {
             </TableHeader>
             <TableBody>
               {certificates.map((certificate) => (
-                <TableRow key={certificate.id}>
+                <TableRow key={certificate._id}>
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-3">
                       <div className="relative w-10 h-10 flex-shrink-0">
@@ -102,11 +128,11 @@ export default function CertificatesPage() {
                         </Button>
                       )}
                       <Button variant="ghost" size="sm" asChild>
-                        <Link href={`/dashboard/certificates/${certificate.id}/edit`}>
+                        <Link href={`/dashboard/certificates/${certificate._id}/edit`}>
                           <Edit className="w-4 h-4" />
                         </Link>
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => setDeletingCertificate(certificate)}>
+                      <Button variant="ghost" size="sm" onClick={() => handleDelete(certificate?._id)}>
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -118,25 +144,7 @@ export default function CertificatesPage() {
         </CardContent>
       </Card>
 
-      <AlertDialog open={!!deletingCertificate} onOpenChange={(open) => !open && setDeletingCertificate(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Certificate</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{deletingCertificate?.title}"? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+
     </div>
   )
 }

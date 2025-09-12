@@ -11,9 +11,9 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import { loginUser } from "@/src/services/AuthService"
-
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2"
 import { useRouter } from "next/navigation"
+
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -23,7 +23,8 @@ const signInSchema = z.object({
 type SignInFormData = z.infer<typeof signInSchema>
 
 export default function SignInPage() {
-const router = useRouter();
+  const router = useRouter()
+  const [showPassword, setShowPassword] = useState(false)
 
   const {
     register,
@@ -38,46 +39,39 @@ const router = useRouter();
     },
   })
 
-  const [showPassword, setShowPassword] = useState(false)
+  const onSubmit = async (data: SignInFormData) => {
+    try {
+    console.log(data)
+      const result = await loginUser(data)
+      console.log("Sign in attempt:", result)
 
+      Swal.fire({
+        icon: "success",
+        title: "Login Successful!",
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+      })
 
-const onSubmit = async (data: SignInFormData) => {
-  try {
-    const result = await loginUser(data);
-    console.log("Sign in attempt:", result);
-
-    // Show success toast
-    Swal.fire({
-      icon: 'success',
-      title: 'Login Successful!',
-      toast: true,
-      position: 'top-end',
-      showConfirmButton: false,
-      timer: 2000,
-      timerProgressBar: true,
-    });
-
-    // Redirect to dashboard after 2 seconds
-    setTimeout(() => {
-      router.push('/dashboard');
-    }, 2000);
-
-  } catch (error: any) {
-    console.error(error);
-
-    // Show error toast
-    Swal.fire({
-      icon: 'error',
-      title: 'Login Failed',
-      text: error?.message || 'Something went wrong!',
-      toast: true,
-      position: 'top-end',
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true,
-    });
+      setTimeout(() => {
+        router.push("/dashboard")
+      }, 2000)
+    } catch (error: any) {
+      console.error(error)
+      Swal.fire({
+        icon: "error",
+        title: "Login Failed",
+        text: error?.message || "Something went wrong!",
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      })
+    }
   }
-};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 px-4">
@@ -122,11 +116,7 @@ const onSubmit = async (data: SignInFormData) => {
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  )}
+                  {showPassword ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
                 </Button>
               </div>
               {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}

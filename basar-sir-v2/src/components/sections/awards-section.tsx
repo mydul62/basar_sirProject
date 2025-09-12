@@ -1,54 +1,76 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Trophy, Award, Star, Medal, ChevronDown, ChevronUp } from "lucide-react"
-import { demoAwards } from "@/src/lib/demo-data"
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Trophy, Award, Star, Medal } from "lucide-react";
+import { GetAllAward } from "@/src/services/award";
+import { IAward } from "@/src/lib/demo-data";
+import { Button } from "@/components/ui/button";
 
 const getAwardIcon = (type: string) => {
   switch (type) {
     case "fellowship":
-      return <Star className="h-5 w-5 text-yellow-500" />
+      return <Star className="h-5 w-5 text-yellow-500" />;
     case "award":
-      return <Trophy className="h-5 w-5 text-yellow-500" />
+      return <Trophy className="h-5 w-5 text-yellow-500" />;
     case "recognition":
-      return <Medal className="h-5 w-5 text-yellow-500" />
+      return <Medal className="h-5 w-5 text-yellow-500" />;
     case "competition":
-      return <Award className="h-5 w-5 text-yellow-500" />
+      return <Award className="h-5 w-5 text-yellow-500" />;
     default:
-      return <Trophy className="h-5 w-5 text-yellow-500" />
+      return <Trophy className="h-5 w-5 text-yellow-500" />;
   }
-}
+};
 
 export function AwardsSection() {
-  const [showAll, setShowAll] = useState(false)
-  const displayedAwards = showAll ? demoAwards : demoAwards.slice(0, 6)
-  const hasMoreAwards = demoAwards.length > 6
+  const [awards, setAwards] = useState<IAward[]>([]);
+
+  useEffect(() => {
+    const fetchAwards = async () => {
+      try {
+        const res = await GetAllAward();
+        setAwards(res?.data || []);
+      } catch (error) {
+        console.error("Failed to fetch awards:", error);
+      }
+    };
+    fetchAwards();
+  }, []);
+
+  const displayedAwards = awards.slice(0, 6); // always show first 6
+  const hasMoreAwards = awards.length > 6;
 
   return (
     <section id="awards" className="py-20 bg-muted/30">
-      <div className="container mx-auto px-4 ">
+      <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-foreground mb-4">Awards & Honours</h2>
+          <h2 className="text-4xl font-bold text-foreground mb-4">
+            Awards & Honours
+          </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Recognition for contributions to research, innovation, and academic excellence
+            Recognition for contributions to research, innovation, and academic
+            excellence
           </p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {displayedAwards.map((award) => (
             <Card
-              key={award.id}
+              key={award._id}
               className="hover:shadow-lg transition-shadow duration-300 border-2 hover:border-primary/20"
             >
               <CardHeader className="pb-3">
                 <div className="flex items-start gap-3">
                   {getAwardIcon(award.type)}
                   <div className="flex-1">
-                    <CardTitle className="text-lg leading-tight mb-2">{award.title}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{award.organization}</p>
+                    <CardTitle className="text-lg leading-tight mb-2">
+                      {award.title}
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                      {award.organization}
+                    </p>
                   </div>
                 </div>
               </CardHeader>
@@ -61,7 +83,11 @@ export function AwardsSection() {
                     {award.type}
                   </Badge>
                 </div>
-                {award.description && <p className="text-sm text-muted-foreground mt-3">{award.description}</p>}
+                {award.description && (
+                  <p className="text-sm text-muted-foreground mt-3">
+                    {award.description}
+                  </p>
+                )}
               </CardContent>
             </Card>
           ))}
@@ -69,22 +95,18 @@ export function AwardsSection() {
 
         {hasMoreAwards && (
           <div className="text-center mt-12">
-            <Button variant="outline" size="lg" onClick={() => setShowAll(!showAll)} className="font-medium px-8 py-3">
-              {showAll ? (
-                <>
-                  <ChevronUp className="w-4 h-4 mr-2" />
-                  Show Less
-                </>
-              ) : (
-                <>
-                  <ChevronDown className="w-4 h-4 mr-2" />
-                  View More Awards ({demoAwards.length - 6} more)
-                </>
-              )}
-            </Button>
+            <Link href="/awards" className="">
+              <Button
+                variant="outline"
+                size="lg"
+                className="hover:bg-primary hover:text-primary-foreground transition-colors bg-transparent"
+              >
+                View All Awards ({awards.length})
+              </Button>
+            </Link>
           </div>
         )}
       </div>
     </section>
-  )
+  );
 }

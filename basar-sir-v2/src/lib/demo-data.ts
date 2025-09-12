@@ -12,7 +12,7 @@ export interface Project {
 }
 
 export interface BlogPost {
-  id: string
+  _id: string
   title: string
   excerpt: string
   content: string
@@ -37,8 +37,8 @@ export interface Publication {
   status: "published" | "accepted" | "under-review"
 }
 
-export interface Award {
-  id: string
+export interface IAward {
+  _id: string
   title: string
   organization: string
   year: number
@@ -47,7 +47,7 @@ export interface Award {
 }
 
 export interface Network {
-  id: string
+  _id: string
   role: string
   organization: string
   description?: string
@@ -57,7 +57,7 @@ export interface Network {
 }
 
 export interface Grant {
-  id: string
+  _id: string
   title: string
   role: string
   fundingAgency: string
@@ -69,7 +69,7 @@ export interface Grant {
 }
 
 export interface Certificate {
-  id: string
+  _id: string
   title: string
   issuer: string
   issueDate: string
@@ -82,7 +82,7 @@ export interface Certificate {
 }
 
 export interface Activity {
-  id: string
+  _id: string
   title: string
   organization: string
   type: "volunteering" | "leadership" | "community"

@@ -11,7 +11,7 @@ export const GetAllProjects = async () => {
         "Content-Type": "application/json",
       },
       next:{
-      tags:["publications"]
+      tags:["project"]
       }
     });
 
@@ -119,7 +119,6 @@ export const UpdateProject = async (formData: FormData) => {
 };
 
   export const DeleteProject = async (id:string) => {
-  console.log(id)
     try {
       const cookieStore = await cookies();
       let token = cookieStore.get("accessToken")!.value;
@@ -130,10 +129,10 @@ export const UpdateProject = async (formData: FormData) => {
           "Authorization":token,
         },
       });
-      revalidateTag("publications");
+      revalidateTag("project");
       return await response.json();
     } catch (error) {
-      console.error("Error delete memeber:", error);
+      console.error("Error delete project:", error);
       return null;
     }
   };

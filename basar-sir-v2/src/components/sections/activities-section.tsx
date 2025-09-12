@@ -1,87 +1,11 @@
+"use client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Heart, Users, Award, Calendar } from "lucide-react"
-
-// Demo data for activities - will be replaced with shared data later
-const demoActivities = [
-  {
-    id: "1",
-    title: "Community Health Awareness Program",
-    organization: "Local Health Department",
-    type: "volunteering",
-    role: "Health Education Volunteer",
-    startDate: "2023-06-01",
-    endDate: "2024-05-31",
-    description:
-      "Organized health awareness campaigns in rural communities, educating families about preventive healthcare and nutrition.",
-    skills: ["Community Outreach", "Health Education", "Public Speaking"],
-    location: "Rural Bangladesh",
-  },
-  {
-    id: "2",
-    title: "Student Mentorship Program",
-    organization: "Bangladesh Open University",
-    type: "leadership",
-    role: "Senior Mentor",
-    startDate: "2022-01-01",
-    endDate: "2024-12-31",
-    description:
-      "Leading a team of mentors to guide undergraduate students in research methodology and career development.",
-    skills: ["Leadership", "Mentoring", "Team Management"],
-    location: "Gazipur, Bangladesh",
-  },
-  {
-    id: "3",
-    title: "Digital Literacy Initiative",
-    organization: "Tech for Good Foundation",
-    type: "volunteering",
-    role: "Technical Trainer",
-    startDate: "2023-01-15",
-    endDate: "2023-12-20",
-    description:
-      "Conducted free computer literacy workshops for underprivileged youth, teaching basic computer skills and programming fundamentals.",
-    skills: ["Teaching", "Computer Training", "Community Service"],
-    location: "Dhaka, Bangladesh",
-  },
-  {
-    id: "4",
-    title: "Research Ethics Committee",
-    organization: "University Research Board",
-    type: "leadership",
-    role: "Committee Chair",
-    startDate: "2023-03-01",
-    description:
-      "Leading the institutional research ethics review process, ensuring compliance with ethical standards in academic research.",
-    skills: ["Ethics Review", "Policy Development", "Academic Leadership"],
-    location: "University Campus",
-  },
-  {
-    id: "5",
-    title: "Blood Donation Drive Coordinator",
-    organization: "Red Crescent Society",
-    type: "volunteering",
-    role: "Event Coordinator",
-    startDate: "2022-06-01",
-    endDate: "2024-06-01",
-    description:
-      "Organized quarterly blood donation camps, coordinating with medical teams and managing volunteer schedules.",
-    skills: ["Event Management", "Volunteer Coordination", "Healthcare Support"],
-    location: "Multiple Locations",
-  },
-  {
-    id: "6",
-    title: "Youth Leadership Council",
-    organization: "National Youth Development Program",
-    type: "leadership",
-    role: "Council Member",
-    startDate: "2021-09-01",
-    endDate: "2023-08-31",
-    description:
-      "Represented academic community in policy discussions and youth development initiatives at national level.",
-    skills: ["Policy Advocacy", "Youth Development", "Strategic Planning"],
-    location: "Dhaka, Bangladesh",
-  },
-]
+import { useEffect, useState } from "react"
+import { Activity } from "@/src/lib/demo-data"
+import { GetAllActivities } from "@/src/services/activities"
+import Link from "next/link"
 
 const getActivityIcon = (type: string) => {
   switch (type) {
@@ -105,13 +29,30 @@ const getActivityTypeColor = (type: string) => {
   }
 }
 
-export function ActivitiesSection() {
-  // Group activities by type
-  const volunteeringActivities = demoActivities.filter((activity) => activity.type === "volunteering")
-  const leadershipActivities = demoActivities.filter((activity) => activity.type === "leadership")
+const roles = [
+  "Lead Guest Editor",
+  "Technical Trainer",
+  "Volunteer Coordinator",
+  "Lead Guest Editor Lead Guest Editor",
+]
 
-  const ActivityCard = ({ activity }: { activity: (typeof demoActivities)[0] }) => (
-    <Card key={activity.id}  className="hover:shadow-md transition-shadow">
+export function ActivitiesSection() {
+  const [activities, setActivities] = useState<Activity[]>([])
+
+  useEffect(() => {
+    const fetchActivities = async () => {
+      try {
+        const res = await GetAllActivities()
+        setActivities(res?.data || [])
+      } catch (error) {
+        console.error("Failed to fetch Activities:", error)
+      }
+    }
+    fetchActivities()
+  }, [])
+
+  const ActivityCard = ({ activity }: { activity: Activity }) => (
+    <Card key={activity._id} className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
         <div className="flex items-start gap-3">
           {getActivityIcon(activity.type)}
@@ -136,9 +77,7 @@ export function ActivitiesSection() {
 
           <div className="flex flex-wrap gap-1">
             {activity.skills.map((skill, index) => (
-              <Badge key={index} variant="outline" className="text-xs">
-                {skill}
-              </Badge>
+              <Badge key={index} variant="outline" className="text-xs">{skill}</Badge>
             ))}
           </div>
 
@@ -154,42 +93,46 @@ export function ActivitiesSection() {
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-foreground mb-4">Extracurricular Activities</h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Community engagement through volunteering and leadership experiences that create positive impact
+            Community engagement through volunteering and leadership experiences
           </p>
         </div>
 
         <div className="space-y-12">
-          {/* Volunteering Experience */}
-          <div>
-            <div className="flex items-center gap-3 mb-8">
-              <Heart className="h-6 w-6 text-rose-600" />
-              <h3 className="text-2xl font-bold text-foreground">Volunteering Experience</h3>
-              <Badge variant="secondary" className="ml-2">
-                {volunteeringActivities.length} activities
-              </Badge>
-            </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {volunteeringActivities.map((activity) => (
-                <ActivityCard key={activity.id} activity={activity} />
-              ))}
-            </div>
-          </div>
+          {roles.map((role) => {
+            const roleActivities = activities.filter(a => a.role === role)
+            if (!roleActivities.length) return null // skip roles with no data
 
-          {/* Leadership Experience */}
-          <div>
-            <div className="flex items-center gap-3 mb-8">
-              <Users className="h-6 w-6 text-blue-600" />
-              <h3 className="text-2xl font-bold text-foreground">Leadership Experience</h3>
-              <Badge variant="secondary" className="ml-2">
-                {leadershipActivities.length} activities
-              </Badge>
-            </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {leadershipActivities.map((activity) => (
-                <ActivityCard key={activity.id} activity={activity} />
-              ))}
-            </div>
-          </div>
+            const showActivities = roleActivities.slice(0, 3) // show only first 3
+
+            return (
+              <div key={role}>
+                <div className="flex items-center gap-3 mb-8">
+                  <Award className="h-6 w-6 text-purple-600" />
+                  <h3 className="text-2xl font-bold text-foreground">{role}</h3>
+                  <Badge variant="secondary" className="ml-2">
+                    {roleActivities.length} activities
+                  </Badge>
+                </div>
+
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {showActivities.map(activity => (
+                    <ActivityCard key={activity._id} activity={activity} />
+                  ))}
+                </div>
+
+                {roleActivities.length > 3 && (
+                  <div className="mt-4 text-center">
+                    <Link
+                      href={`/activities/${role.replace(/\s+/g, "-").toLowerCase()}`}
+                      className="inline-block px-6 py-2 text-sm font-medium text-white bg-purple-600 rounded hover:bg-purple-700 transition"
+                    >
+                      See More
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       </div>
     </section>

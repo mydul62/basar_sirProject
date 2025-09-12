@@ -1,33 +1,36 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Edit, Trash2, ExternalLink } from "lucide-react"
 import Link from "next/link"
-import { publications as initialPublications } from "@/src/lib/demo-data"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+
+import { Publication } from "@/src/lib/demo-data"
+import { GetAllPublicatons } from "@/src/services/Publications"
 
 export default function PublicationsPage() {
-  const [publications, setPublications] = useState(initialPublications)
-  const [deletingPublication, setDeletingPublication] = useState<any>(null)
+ const [publications, setPublications] = useState<Publication[]>([])
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const res = await GetAllPublicatons()
+        setPublications(res?.data) 
+      } catch (error) {
+        console.error("Failed to fetch projects:", error)
+      }
+    }
+
+    fetchProjects()
+  }, [])
+  console.log(publications)
+
 
   const handleDelete = () => {
-    if (!deletingPublication) return
 
-    setPublications(publications.filter((pub) => pub.id !== deletingPublication.id))
-    setDeletingPublication(null)
   }
 
   return (
@@ -65,7 +68,7 @@ export default function PublicationsPage() {
             </TableHeader>
             <TableBody>
               {publications.map((publication) => (
-                <TableRow key={publication.id}>
+                <TableRow key={publication._id}>
                   <TableCell className="font-medium max-w-xs">
                     <div className="truncate">{publication.title}</div>
                   </TableCell>
@@ -102,19 +105,19 @@ export default function PublicationsPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
-                      {publication.link && (
+                        {"url" in publication && publication.url && (
                         <Button variant="ghost" size="sm" asChild>
-                          <a href={publication.link} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="w-4 h-4" />
+                          <a href={publication.url} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="w-4 h-4" />
                           </a>
                         </Button>
-                      )}
+                        )}
                       <Button variant="ghost" size="sm" asChild>
-                        <Link href={`/dashboard/publications/${publication.id}/edit`}>
+                        <Link href={`/dashboard/publications/${publication._id}/edit`}>
                           <Edit className="w-4 h-4" />
                         </Link>
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => setDeletingPublication(publication)}>
+                      <Button variant="ghost" size="sm" onClick={() => (publication)}>
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -126,25 +129,6 @@ export default function PublicationsPage() {
         </CardContent>
       </Card>
 
-      <AlertDialog open={!!deletingPublication} onOpenChange={(open) => !open && setDeletingPublication(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Publication</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{deletingPublication?.title}"? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   )
 }
